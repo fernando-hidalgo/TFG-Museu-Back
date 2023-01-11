@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { RatingEntity } from "../rating/rating.entity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name: 'artworks'})
 export class ArtworkEntity {
@@ -25,4 +26,10 @@ export class ArtworkEntity {
 
     @Column({type: 'varchar'})
     room: string;
+
+    @Column({type: "float"})
+    averageRating: number;
+
+    @OneToMany(type => RatingEntity, rating => rating.artwork)
+    ratings: RatingEntity[];
 }
