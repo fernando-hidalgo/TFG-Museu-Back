@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './config/constants';
-//import { ArtworkModule } from './artwork/artwork.module';
+import { ArtworkModule } from './artwork/artwork.module';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './config/consta
       }),
       inject: [ConfigService],
     }),
-    //ArtworkModule
+    ArtworkModule
   ],
   controllers: [AppController],
   providers: [AppService],
