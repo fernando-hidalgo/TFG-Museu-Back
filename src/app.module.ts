@@ -3,8 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './config/constants';
+import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './constants';
 import { ArtworkModule } from './artwork/artwork.module';
+import { RatingModule } from './rating/rating.module';
+import { ArtListModule } from './art-list/art-list.module';
 
 @Module({
   imports: [
@@ -26,7 +28,9 @@ import { ArtworkModule } from './artwork/artwork.module';
       }),
       inject: [ConfigService],
     }),
-    ArtworkModule
+    ArtworkModule,
+    RatingModule,
+    ArtListModule
   ],
   controllers: [AppController],
   providers: [AppService],

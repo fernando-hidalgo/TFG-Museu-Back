@@ -5,8 +5,6 @@ import { ArtworkRepository } from './artwork.repository';
 
 @Injectable()
 export class ArtworkService {
-
-
     constructor(
         @InjectRepository(ArtworkEntity)
         private ArtworkRepository: ArtworkRepository
