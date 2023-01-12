@@ -1,7 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ArtworkEntity } from 'src/artwork/artwork.entity';
-import { ArtworkRepository } from 'src/artwork/artwork.repository';
 import { ArtworkService } from 'src/artwork/artwork.service';
 import { RatingDTO } from './dto/rating.dto';
 import { RatingEntity } from './rating.entity';
@@ -22,26 +20,40 @@ export class RatingService {
     }
 
     async findByArtworkId(artworkId: number): Promise<RatingEntity[]> {
-        const res = await this.RatingRepository.query(`SELECT * FROM ratings WHERE artwork_id = ?`, [artworkId]);
+        const res = await this.RatingRepository
+            .createQueryBuilder('ratings')
+            .where("artwork_id = :artworkId", { artworkId: artworkId })
+            .getMany();
         if(!res) throw new NotFoundException({message: 'No rating found'});
         return res;
     }
 
-    async create(dto: RatingDTO): Promise<any> {
+    async create(dto: RatingDTO): Promise<void> {
         const rating = this.RatingRepository.create(dto);
         rating.artwork = await this.ArtworkService.findById(dto.artwork_id);
         await this.RatingRepository.save(rating);
     }
 
-    async delete(id: number): Promise<any> {
-        const rating = await this.RatingRepository.query(`SELECT * FROM ratings WHERE id = ?`, [id]);
+    async delete(id: number): Promise<void> {
+        const rating = await this.selectRating(id);
+        if(!rating) throw new NotFoundException({message: 'No rating found'});
         await this.RatingRepository.delete(rating);
     }
 
-    async update(id: number, dto: RatingDTO): Promise<any> {
-        const rating = await this.RatingRepository.query(`SELECT * FROM ratings WHERE id = ?`, [id]);
-        if (!rating.length) throw new NotFoundException({message: 'No rating found'});
-        await this.RatingRepository.save(Object.assign(rating[0], dto));
+    
+    async update(id: number, dto: RatingDTO): Promise<void> {
+        const rating = await this.selectRating(id);
+        if (!rating) throw new NotFoundException({message: 'No rating found'});
+        await this.RatingRepository.save(Object.assign(rating, dto));
+    }
+
+    //Helpers
+    selectRating(id: number): Promise<RatingEntity> {
+        return this.RatingRepository
+        .createQueryBuilder('ratings')
+        .where("id = :id", { id: id })
+        .getOne();
+        ;
     }
 
 }

@@ -24,7 +24,7 @@ export class ArtListService {
         return res;
     }
 
-    async create(dto: CreateArtListDTO): Promise<any> {
+    async create(dto: CreateArtListDTO): Promise<void> {
         //Get list data from body object
         let l = Object.assign(new ArtListEntity(), {name: dto.name, text: dto.text})
         const list = this.ArtListRepository.create(l);
@@ -33,22 +33,33 @@ export class ArtListService {
         this.addArtworkToList(list.id, dto.artworkId);
     }
 
-    async delete(id: number): Promise<any> {
-        const list = await this.ArtListRepository.query(`SELECT * FROM art_lists WHERE id = ?`, [id]);
+    async delete(id: number): Promise<void> {
+        const list = await this.ArtListRepository
+            .createQueryBuilder('art_lists')
+            .where("id = :id", { id: id })
+            .getOne();
         await this.ArtListRepository.delete(list);
     }
 
-    async update(id: number, dto: UpdateArtListDTO): Promise<any> {
-        const list = await this.ArtListRepository.query(`SELECT * FROM art_lists WHERE id = ?`, [id]);
-        if (!list.length) throw new NotFoundException({message: 'No list found'});
+    async update(id: number, dto: UpdateArtListDTO): Promise<void> {
+        const list = await this.ArtListRepository
+            .createQueryBuilder('art_lists')
+            .where("id = :id", { id: id })
+            .getOne();
+        if (!list) throw new NotFoundException({message: 'No list found'});
 
         //Update ArtList (Name, Text)
         let l = Object.assign(new ArtListEntity(), {name: dto.name, text: dto.text})
-        await this.ArtListRepository.save(Object.assign(list[0], l));
+        await this.ArtListRepository.save(Object.assign(list, l));
 
         //Update ArtList contens (Artworks saved in that list)
         //First delete all artworks contained, then save the new array of artworks the list contains
-        await this.ArtListRepository.query(`DELETE FROM art_list_contains WHERE artListsId = ?;`, [id]);
+        await this.ArtListRepository
+            .createQueryBuilder('art_list_contains')
+            .delete()
+            .from('art_list_contains')
+            .where("artListsId = :id", { id: id })
+            .execute();
         dto.artworksIds.forEach(e => 
             this.addArtworkToList(id, e)
         );
@@ -56,12 +67,18 @@ export class ArtListService {
 
     //Helpers
     //To use in CREATE
-    async addArtworkToList(id: number, artworkId: number): Promise<any> {
-        await this.ArtListRepository.query(`INSERT INTO museu.art_list_contains VALUES (?,?);`, [id, artworkId]);
+    async addArtworkToList(id: number, artworkId: number): Promise<void> {
+        await this.ArtListRepository
+            .createQueryBuilder()
+            .insert()
+            .into('art_list_contains')
+            .values([
+                { artListsId: id, artworksId: artworkId }
+            ]).execute()
     }
 
     //Inutil, eliminar al final si no se usa nunca
-    async deleteArtworksFromList(id: number, artworksIds: number[]): Promise<any> {
+    async deleteArtworksFromList(id: number, artworksIds: number[]): Promise<void> {
         await this.ArtListRepository.query(`DELETE FROM art_list_contains WHERE artListsId = ? AND artworksId IN (?);`, [id, artworksIds]);
     }
 }
