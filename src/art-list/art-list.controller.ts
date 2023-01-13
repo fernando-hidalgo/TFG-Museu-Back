@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { UsePipes } from '@nestjs/common/decorators';
+import { ValidationPipe } from '@nestjs/common/pipes';
 import { ArtListService } from './art-list.service';
-import { ArtListDTO } from './dto/art-list.dto';
 import { CreateArtListDTO } from './dto/create-art-list.dto';
 import { UpdateArtListDTO } from './dto/update-art-list.dto';
 
@@ -18,6 +19,7 @@ export class ArtListController {
         return await this.ArtListService.findById(id);
     }
 
+    @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     async create(@Body() dto: CreateArtListDTO) {
         return await this.ArtListService.create(dto);
@@ -28,6 +30,7 @@ export class ArtListController {
         return await this.ArtListService.delete(id)
     }
 
+    @UsePipes(new ValidationPipe({whitelist: true}))
     @Put(':id')
     async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateArtListDTO) {
         return await this.ArtListService.update(id, dto);

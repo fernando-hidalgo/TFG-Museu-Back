@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ArtworkService } from 'src/artwork/artwork.service';
-import { RatingDTO } from './dto/rating.dto';
+import { CreateRatingDTO } from './dto/create-rating.dto';
+import { UpdateRatingDTO } from './dto/update-rating.dto';
 import { RatingEntity } from './rating.entity';
 import { RatingRepository } from './rating.repository';
 
@@ -28,7 +29,7 @@ export class RatingService {
         return res;
     }
 
-    async create(dto: RatingDTO): Promise<void> {
+    async create(dto: CreateRatingDTO): Promise<void> {
         const rating = this.RatingRepository.create(dto);
         rating.artwork = await this.ArtworkService.findById(dto.artwork_id);
         await this.RatingRepository.save(rating);
@@ -41,7 +42,7 @@ export class RatingService {
     }
 
     
-    async update(id: number, dto: RatingDTO): Promise<void> {
+    async update(id: number, dto: UpdateRatingDTO): Promise<void> {
         const rating = await this.selectRating(id);
         if (!rating) throw new NotFoundException({message: 'No rating found'});
         await this.RatingRepository.save(Object.assign(rating, dto));

@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
-import { RatingDTO } from './dto/rating.dto';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { CreateRatingDTO} from './dto/create-rating.dto';
+import { UpdateRatingDTO } from './dto/update-rating.dto';
 import { RatingService } from './rating.service';
 
 @Controller('rating')
@@ -16,8 +17,9 @@ export class RatingController {
         return await this.RatingService.findByArtworkId(id);
     }
 
+    @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
-    async create(@Body() dto: RatingDTO) {
+    async create(@Body() dto: CreateRatingDTO) {
         return await this.RatingService.create(dto);
     }
 
@@ -26,8 +28,9 @@ export class RatingController {
         return await this.RatingService.delete(id)
     }
 
+    @UsePipes(new ValidationPipe({whitelist: true}))
     @Put(':id')
-    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: RatingDTO) {
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateRatingDTO) {
         return await this.RatingService.update(id, dto);
     }
 }

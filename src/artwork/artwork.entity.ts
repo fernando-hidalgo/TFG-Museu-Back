@@ -1,5 +1,5 @@
 import { RatingEntity } from "../rating/rating.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Check, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name: 'artworks'})
 export class ArtworkEntity {
@@ -21,8 +21,8 @@ export class ArtworkEntity {
     @Column({type: 'varchar'})
     colection: string;
 
-    @Column({type: 'varchar'})
-    display: string;
+    @Column({ type: 'boolean' })
+    display: boolean;
 
     @Column({type: 'varchar'})
     room: string;
