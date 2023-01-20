@@ -13,6 +13,10 @@ export class ArtListEntity {
     text: string;
 
     @ManyToMany(type => ArtworkEntity, { eager: true })
-    @JoinTable({name: 'art_list_contains'}) 
+    @JoinTable({
+        name: 'art_list_contains',
+        /*joinColumn: {name: 'art_list_id'},
+        inverseJoinColumn: {name: 'artwork_id'}*/
+    }) 
     artworks: ArtworkEntity[];
 }

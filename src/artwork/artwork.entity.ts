@@ -1,5 +1,5 @@
 import { RatingEntity } from "../rating/rating.entity";
-import { Check, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name: 'artworks'})
 export class ArtworkEntity {

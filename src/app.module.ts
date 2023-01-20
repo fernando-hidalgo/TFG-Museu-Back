@@ -7,6 +7,11 @@ import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './constants';
 import { ArtworkModule } from './artwork/artwork.module';
 import { RatingModule } from './rating/rating.module';
 import { ArtListModule } from './art-list/art-list.module';
+import { UserModule } from './user/user.module';
+import { RoleModule } from './role/role.module';
+import { AuthService } from './auth/auth.service';
+import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -30,9 +35,12 @@ import { ArtListModule } from './art-list/art-list.module';
     }),
     ArtworkModule,
     RatingModule,
-    ArtListModule
+    ArtListModule,
+    UserModule,
+    RoleModule,
+    AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AuthService],
 })
 export class AppModule { }
