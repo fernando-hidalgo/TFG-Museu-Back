@@ -1,4 +1,8 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { RoleDecorator } from 'src/custom-decorators';
+import { JwtAuthGuard } from 'src/guards/jwt.guard';
+import { RolesGuard } from 'src/guards/role.guard';
+import { RoleType } from 'src/role/role.enum';
 import { CreateRatingDTO} from './dto/create-rating.dto';
 import { UpdateRatingDTO } from './dto/update-rating.dto';
 import { RatingService } from './rating.service';
@@ -17,6 +21,8 @@ export class RatingController {
         return await this.RatingService.findByArtworkId(id);
     }
 
+    @RoleDecorator(RoleType.USER)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     async create(@Body() dto: CreateRatingDTO) {

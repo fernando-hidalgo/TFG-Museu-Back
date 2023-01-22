@@ -1,4 +1,5 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
+import { SetMetadata } from '@nestjs/common';
 
 export function IsNotBlank(validationOptions?: ValidationOptions) {
     return function (object: Object, propertyName: string) {
@@ -18,3 +19,5 @@ export function IsNotBlank(validationOptions?: ValidationOptions) {
         });
     };
 }
+
+export const RoleDecorator = (...roles: string[]) => SetMetadata('roles', roles);

@@ -11,7 +11,6 @@ import { UserModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
 import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -41,6 +40,6 @@ import { AuthModule } from './auth/auth.module';
     AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService, AuthService],
+  providers: [AppService],
 })
 export class AppModule { }
