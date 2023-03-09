@@ -32,7 +32,7 @@ export class ArtworkService {
         const options = {
             name: filters.nameFilter,
             artist: filters.artistFilter,
-            //style: filters.styleFilter,
+            style: filters.styleFilter,
             museum: filters.museumFilter
         }
 
