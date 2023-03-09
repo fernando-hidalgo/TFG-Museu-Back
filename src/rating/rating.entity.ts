@@ -15,5 +15,4 @@ export class RatingEntity {
     @ManyToOne(type => ArtworkEntity, artwork => artwork.ratings, { onDelete:'CASCADE', nullable: false, eager: true}) 
     @JoinColumn({ name: 'artwork_id' })
     artwork: ArtworkEntity;
-    
 }

@@ -1,5 +1,6 @@
 import { RatingEntity } from "../rating/rating.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Max, Min } from "class-validator";
 
 @Entity({name: 'artworks'})
 export class ArtworkEntity {
@@ -11,6 +12,9 @@ export class ArtworkEntity {
 
     @Column({type: 'varchar'})
     date: string;
+
+    @Column({type: 'varchar'})
+    picLink: string;
 
     @Column({type: 'varchar'})
     artist: string;

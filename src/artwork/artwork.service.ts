@@ -28,4 +28,23 @@ export class ArtworkService {
         return res;
     }
 
+    async findFiltered(filters) {
+        const options = {
+            name: filters.nameFilter,
+            artist: filters.artistFilter,
+            //style: filters.styleFilter,
+            museum: filters.museumFilter
+        }
+
+        const artworks: ArtworkEntity[] = await this.ArtworkRepository.find({where: options});
+          
+        return Object.keys(options).reduce(
+            (acc, filter) => {
+                acc[`${filter}Filter`] = [...new Set(artworks.map(
+                    (artwork) => artwork[filter]
+                ))];
+                return acc;
+                
+            }, { artworks });
+    }
 }
