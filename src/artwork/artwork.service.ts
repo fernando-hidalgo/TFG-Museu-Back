@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ArtworkFields } from 'src/constants';
 import { ArtworkEntity } from './artwork.entity';
 import { ArtworkRepository } from './artwork.repository';
 
@@ -10,10 +11,16 @@ export class ArtworkService {
         private ArtworkRepository: ArtworkRepository
     ) {}
 
-    async getAll(): Promise<ArtworkEntity[]> {
-        const res = await this.ArtworkRepository.find();
-        if(!res.length) throw new NotFoundException({message: 'No artworks found'});
-        return res;
+    async getAll(): Promise<any> {
+        const artworks = await this.ArtworkRepository.find();
+
+        if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
+        
+        return {artworks, ...ArtworkFields.reduce((acc, filter) => {
+            acc[`${filter}Filter`] = [...new Set(artworks.map((artwork) => artwork[filter]))];
+            return acc;
+          }, {}),
+        };
     }
 
     async findById(id: number): Promise<ArtworkEntity> {
@@ -28,7 +35,7 @@ export class ArtworkService {
         return res;
     }
 
-    async findFiltered(filters) {
+    async findFiltered(filters): Promise<any> {
         const options = {
             name: filters.nameFilter,
             artist: filters.artistFilter,
@@ -37,6 +44,8 @@ export class ArtworkService {
         }
 
         const artworks: ArtworkEntity[] = await this.ArtworkRepository.find({where: options});
+
+        if(!artworks.length) throw new NotFoundException({message: 'No artworks found'});
           
         return Object.keys(options).reduce(
             (acc, filter) => {
