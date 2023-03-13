@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Req } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ArtworkService } from './artwork.service';
 
 @Controller('artwork')
@@ -12,8 +12,12 @@ export class ArtworkController {
     }
 
     @Get('/filtered')
-    async getFiltered(@Body() filters) {
-        return await this.ArtworkService.findFiltered(filters);
+    async getFiltered(
+        @Query('nameFilter') nameFilter: string,
+        @Query('artistFilter') artistFilter: string,
+        @Query('styleFilter') styleFilter: string,
+        @Query('museumFilter') museumFilter: string,) {
+        return await this.ArtworkService.findFiltered(nameFilter, artistFilter, styleFilter, museumFilter);
     }
 
     @Get('/:id')

@@ -35,13 +35,16 @@ export class ArtworkService {
         return res;
     }
 
-    async findFiltered(filters): Promise<any> {
+    async findFiltered(nameFilter, artistFilter, styleFilter, museumFilter): Promise<any> {
+        console.log('AAAAAA')
         const options = {
-            name: filters.nameFilter,
-            artist: filters.artistFilter,
-            style: filters.styleFilter,
-            museum: filters.museumFilter
+            name: nameFilter,
+            artist: artistFilter,
+            style: styleFilter,
+            museum: museumFilter
         }
+
+        console.log(options);
 
         const artworks: ArtworkEntity[] = await this.ArtworkRepository.find({where: options});
 
