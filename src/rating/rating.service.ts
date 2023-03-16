@@ -38,7 +38,7 @@ export class RatingService {
     async delete(id: number): Promise<void> {
         const rating = await this.selectRating(id);
         if(!rating) throw new NotFoundException({message: 'No rating found'});
-        await this.RatingRepository.delete(rating);
+        await this.RatingRepository.delete(rating as any);
     }
 
     

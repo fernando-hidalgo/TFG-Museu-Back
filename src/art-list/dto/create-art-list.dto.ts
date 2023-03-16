@@ -12,4 +12,8 @@ export class CreateArtListDTO{
     @IsNumber()
     @IsNotEmpty()
     artworkId?: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    userId?: number;
 }

@@ -1,5 +1,6 @@
 import { ArtworkEntity } from "src/artwork/artwork.entity";
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { UserEntity } from "src/user/user.entity";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name: 'art_lists'})
 export class ArtListEntity {
@@ -11,6 +12,10 @@ export class ArtListEntity {
 
     @Column({type: 'varchar'})
     text: string;
+
+    @ManyToOne(type => UserEntity, user => user.ratings, { onDelete:'CASCADE', nullable: false, eager: true}) 
+    @JoinColumn({ name: 'user_id' })
+    user: UserEntity;
 
     @ManyToMany(type => ArtworkEntity, { eager: true })
     @JoinTable({

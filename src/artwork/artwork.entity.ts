@@ -7,17 +7,20 @@ export class ArtworkEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({type: 'varchar'})
+    picLink: string;
+
     @Column({type: 'varchar', nullable: false})
     name: string;
+
+    @Column({type: 'varchar'})
+    artist: string;
 
     @Column({type: 'varchar'})
     date: string;
 
     @Column({type: 'varchar'})
-    picLink: string;
-
-    @Column({type: 'varchar'})
-    artist: string;
+    description: string;
 
     @Column({type: 'varchar', nullable: false})
     museum: string;

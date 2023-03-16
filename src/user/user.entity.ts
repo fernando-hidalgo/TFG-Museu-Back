@@ -1,6 +1,8 @@
 import { hash } from "bcryptjs";
+import { ArtListEntity } from "src/art-list/art-list.entity";
+import { RatingEntity } from "src/rating/rating.entity";
 import { RoleEntity } from "src/role/role.entity";
-import { BeforeInsert, BeforeUpdate, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({name: 'users'})
 export class UserEntity {
@@ -16,6 +18,12 @@ export class UserEntity {
 
     @Column({type: 'varchar', nullable: false})
     password: string;
+
+    @OneToMany(type => RatingEntity, rating => rating.user)
+    ratings: RatingEntity[];
+
+    @OneToMany(type => ArtListEntity, list => list.user)
+    lists: ArtListEntity[];
 
     @ManyToMany(type => RoleEntity, role => role.users, {eager: true})
     @JoinTable({

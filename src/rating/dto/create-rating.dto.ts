@@ -1,5 +1,4 @@
 import { IsNumber,IsNotEmpty, IsString, Min, Max } from "class-validator";
-import { IsNotBlank } from "src/custom-decorators";
 
 export class CreateRatingDTO {
     @IsNumber()
@@ -13,4 +12,8 @@ export class CreateRatingDTO {
     @IsNumber()
     @IsNotEmpty()
     artwork_id?: number;
+
+    @IsNumber()
+    @IsNotEmpty()
+    user_id?: number;
 }

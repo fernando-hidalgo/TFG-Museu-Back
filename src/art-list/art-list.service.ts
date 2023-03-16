@@ -38,7 +38,7 @@ export class ArtListService {
             .createQueryBuilder('art_lists')
             .where("id = :id", { id: id })
             .getOne();
-        await this.ArtListRepository.delete(list);
+        await this.ArtListRepository.delete(list as any);
     }
 
     async update(id: number, dto: UpdateArtListDTO): Promise<void> {
