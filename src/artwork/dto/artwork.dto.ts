@@ -17,6 +17,9 @@ export class ArtworkDTO {
     museum?: string;
 
     @IsString()
+    description?: string;
+
+    @IsString()
     style?: string;
 
     @IsString()
