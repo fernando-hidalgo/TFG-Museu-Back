@@ -23,6 +23,8 @@ export class RatingService {
     async findByArtworkId(artworkId: number): Promise<RatingEntity[]> {
         const res = await this.RatingRepository
             .createQueryBuilder('ratings')
+            .innerJoin('ratings.user', 'user')
+            .addSelect('user.id').addSelect('user.nickname') //.addSelect('user.profilePic')
             .where("artwork_id = :artworkId", { artworkId: artworkId })
             .getMany();
         if(!res) throw new NotFoundException({message: 'No rating found'});

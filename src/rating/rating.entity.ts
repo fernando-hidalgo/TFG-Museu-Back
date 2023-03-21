@@ -7,7 +7,7 @@ export class RatingEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({type: 'varchar', nullable: false})
+    @Column({type: 'float', nullable: false})
     value: number;
 
     @Column({type: 'varchar'})
