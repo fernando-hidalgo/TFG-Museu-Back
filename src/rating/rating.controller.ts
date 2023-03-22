@@ -16,27 +16,32 @@ export class RatingController {
         return this.RatingService.getAll();
     }
 
-    @Get(':id')
+    @Get('/:id')
     async getOne(@Param('id', ParseIntPipe) id: number) {
+        return await this.RatingService.findById(id);
+    }
+
+    @Get('/artwork/:id')
+    async findByArtworkId(@Param('id', ParseIntPipe) id: number) {
         return await this.RatingService.findByArtworkId(id);
     }
 
-    @RoleDecorator(RoleType.USER)
-    @UseGuards(JwtAuthGuard, RolesGuard)
-    @UsePipes(new ValidationPipe({whitelist: true}))
+    //@RoleDecorator(RoleType.USER)
+    //@UseGuards(JwtAuthGuard, RolesGuard)
+    //@UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     async create(@Body() dto: CreateRatingDTO) {
         return await this.RatingService.create(dto);
-    }
-
-    @Delete(':id')
-    async delete(@Param('id', ParseIntPipe) id: number){
-        return await this.RatingService.delete(id)
     }
 
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Put(':id')
     async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateRatingDTO) {
         return await this.RatingService.update(id, dto);
+    }
+
+    @Delete(':id')
+    async delete(@Param('id', ParseIntPipe) id: number){
+        return await this.RatingService.delete(id)
     }
 }
