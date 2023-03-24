@@ -1,5 +1,6 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ArtworkService } from './artwork.service';
+import { ArtworkDTO } from './dto/artwork.dto';
 
 @Controller('artwork')
 export class ArtworkController {
@@ -23,6 +24,22 @@ export class ArtworkController {
     @Get('/:id')
     async getOne(@Param('id', ParseIntPipe) id: number) {
         return await this.ArtworkService.findById(id);
+    }
+
+    @Post()
+    async create(@Body() dto: ArtworkDTO) {
+        return await this.ArtworkService.create(dto);
+    }
+
+    @UsePipes(new ValidationPipe({whitelist: true}))
+    @Put(':id')
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: ArtworkDTO) {
+        return await this.ArtworkService.update(id, dto);
+    }
+
+    @Delete(':id')
+    async delete(@Param('id', ParseIntPipe) id: number){
+        return await this.ArtworkService.delete(id)
     }
 
     

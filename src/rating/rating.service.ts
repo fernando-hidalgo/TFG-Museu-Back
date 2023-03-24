@@ -36,7 +36,7 @@ export class RatingService {
             .createQueryBuilder('ratings')
             .innerJoin('ratings.user', 'user')
             .addSelect('user.id').addSelect('user.nickname') //TODO: .addSelect('user.profilePic')
-            .where("artwork_id = :artworkId", { artworkId: artworkId })
+            .where("artwork_id = :artworkId", { artworkId })
             .getMany();
         if(!res) throw new NotFoundException({message: 'No rating found'});
         return res;
@@ -44,32 +44,27 @@ export class RatingService {
 
     async create(dto: CreateRatingDTO): Promise<RatingEntity> {
         const rating = this.RatingRepository.create(dto);
-        rating.artwork = await this.ArtworkService.findById(dto.artwork_id);
+        const alreadyRated = await this.RatingRepository
+            .createQueryBuilder('ratings')
+            .where("artwork_id = :artworkId", { artworkId: rating.artwork })
+            .andWhere("user_id = :userId", { userId: rating.user })
+            .getMany()
+        if(alreadyRated.length) throw new NotFoundException({message: 'Current user already rated this artwork'});
         await this.RatingRepository.save(rating);
         return rating
     }
 
     async delete(id: number): Promise<RatingEntity> {
-        const rating = await this.selectRating(id);
+        const rating = await this.findById(id);
         if(!rating) throw new NotFoundException({message: 'No rating found'});
         await this.RatingRepository.delete(rating as any);
         return rating
     }
     
     async update(id: number, dto: UpdateRatingDTO): Promise<RatingEntity> {
-        const rating = await this.selectRating(id);
+        const rating = await this.findById(id);
         if (!rating) throw new NotFoundException({message: 'No rating found'});
         await this.RatingRepository.save(Object.assign(rating, dto));
         return rating
     }
-
-    //Helpers
-    selectRating(id: number): Promise<RatingEntity> {
-        return this.RatingRepository
-        .createQueryBuilder('ratings')
-        .where("id = :id", { id: id })
-        .getOne();
-        ;
-    }
-
 }

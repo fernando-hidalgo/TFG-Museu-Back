@@ -26,6 +26,7 @@ export class RatingController {
         return await this.RatingService.findByArtworkId(id);
     }
 
+    //TODO: Descomentar cuando ya funcione el LOGIN
     //@RoleDecorator(RoleType.USER)
     //@UseGuards(JwtAuthGuard, RolesGuard)
     //@UsePipes(new ValidationPipe({whitelist: true}))

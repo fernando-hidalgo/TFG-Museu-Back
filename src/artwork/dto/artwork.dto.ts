@@ -13,6 +13,10 @@ export class ArtworkDTO {
     artist?: string;
 
     @IsString()
+    @IsNotBlank({message: "picture should not be empty"})
+    picLink?: string;
+
+    @IsString()
     @IsNotBlank({message: "museum should not be empty"})
     museum?: string;
 
