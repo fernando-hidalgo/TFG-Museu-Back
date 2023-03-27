@@ -10,8 +10,7 @@ import { RatingRepository } from './rating.repository';
 export class RatingService {
     constructor(
         @InjectRepository(RatingEntity)
-        private RatingRepository: RatingRepository,
-        private ArtworkService: ArtworkService
+        private RatingRepository: RatingRepository
     ) {}
 
     async getAll(): Promise<RatingEntity[]> {
@@ -37,6 +36,17 @@ export class RatingService {
             .innerJoin('ratings.user', 'user')
             .addSelect('user.id').addSelect('user.nickname') //TODO: .addSelect('user.profilePic')
             .where("artwork_id = :artworkId", { artworkId })
+            .getMany();
+        if(!res) throw new NotFoundException({message: 'No rating found'});
+        return res;
+    }
+
+    async findArtworkByUserId(userId: number): Promise<RatingEntity[]> {
+        const res = await this.RatingRepository
+            .createQueryBuilder('ratings')
+            .innerJoin('ratings.artwork', 'artwork')
+            .addSelect('artwork.id').addSelect('artwork.picLink').addSelect('artwork.averageRating')
+            .where("user_id = :userId", { userId })
             .getMany();
         if(!res) throw new NotFoundException({message: 'No rating found'});
         return res;

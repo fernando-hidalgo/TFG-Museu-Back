@@ -12,6 +12,11 @@ export class ArtworkController {
         return await this.ArtworkService.getAll();
     }
 
+    @Get('logged/:id')
+    async getAllLogged(@Param('id', ParseIntPipe) id: number){
+        return await this.ArtworkService.getAll(id);
+    }
+
     @Get('/filtered')
     async getFiltered(
         @Query('nameFilter') nameFilter: string,
@@ -19,6 +24,16 @@ export class ArtworkController {
         @Query('styleFilter') styleFilter: string,
         @Query('museumFilter') museumFilter: string,) {
         return await this.ArtworkService.findFiltered(nameFilter, artistFilter, styleFilter, museumFilter);
+    }
+
+    @Get('/filtered/logged/:id')
+    async getFilteredLogged(
+        @Query('nameFilter') nameFilter: string,
+        @Query('artistFilter') artistFilter: string,
+        @Query('styleFilter') styleFilter: string,
+        @Query('museumFilter') museumFilter: string,
+        @Param('id', ParseIntPipe) id: number,) {
+        return await this.ArtworkService.findFiltered(nameFilter, artistFilter, styleFilter, museumFilter, id);
     }
 
     @Get('/:id')

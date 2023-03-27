@@ -26,6 +26,12 @@ export class RatingController {
         return await this.RatingService.findByArtworkId(id);
     }
 
+    //Devuelve los ratings de un usuario dado, para sacar de ahí que obras ha visto
+    @Get('/user/:id')
+    async findArtworkByUserId(@Param('id', ParseIntPipe) id: number) {
+        return await this.RatingService.findArtworkByUserId(id);
+    }
+
     //TODO: Descomentar cuando ya funcione el LOGIN
     //@RoleDecorator(RoleType.USER)
     //@UseGuards(JwtAuthGuard, RolesGuard)

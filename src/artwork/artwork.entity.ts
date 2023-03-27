@@ -39,4 +39,7 @@ export class ArtworkEntity {
 
     @OneToMany(type => RatingEntity, rating => rating.artwork)
     ratings: RatingEntity[];
+
+    //No debe ser una columna BD
+    seen: boolean;
 }
