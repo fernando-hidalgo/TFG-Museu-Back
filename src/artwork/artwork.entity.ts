@@ -1,6 +1,5 @@
 import { RatingEntity } from "../rating/rating.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Max, Min } from "class-validator";
 
 @Entity({name: 'artworks'})
 export class ArtworkEntity {
@@ -15,6 +14,9 @@ export class ArtworkEntity {
 
     @Column({type: 'varchar'})
     artist: string;
+
+    @Column({type: 'varchar'})
+    style: string;
 
     @Column({type: 'varchar'})
     date: string;
@@ -40,6 +42,8 @@ export class ArtworkEntity {
     @OneToMany(type => RatingEntity, rating => rating.artwork)
     ratings: RatingEntity[];
 
-    //No debe ser una columna BD
+    //No deben ser columnas en BD
     seen: boolean;
+    
+    userRating: number;
 }

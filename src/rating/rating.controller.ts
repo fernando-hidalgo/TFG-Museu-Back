@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { RoleDecorator } from 'src/custom-decorators';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { RolesGuard } from 'src/guards/role.guard';
@@ -26,10 +26,19 @@ export class RatingController {
         return await this.RatingService.findByArtworkId(id);
     }
 
-    //Devuelve los ratings de un usuario dado, para sacar de ahí que obras ha visto
     @Get('/user/:id')
-    async findArtworkByUserId(@Param('id', ParseIntPipe) id: number) {
-        return await this.RatingService.findArtworkByUserId(id);
+    async findArtworkRatedByUser(@Param('id', ParseIntPipe) id: number) {
+        return await this.RatingService.findArtworkRatedByUser(id);
+    }
+
+    @Get('/filtered/user/:id')
+    async findFilteredArtworkRatedByUser(
+        @Query('nameFilter') nameFilter: string,
+        @Query('artistFilter') artistFilter: string,
+        @Query('styleFilter') styleFilter: string,
+        @Query('museumFilter') museumFilter: string,
+        @Param('id', ParseIntPipe) userId: number) {
+        return await this.RatingService.findFilteredArtworkRatedByUser(nameFilter, artistFilter, styleFilter, museumFilter, userId);
     }
 
     //TODO: Descomentar cuando ya funcione el LOGIN

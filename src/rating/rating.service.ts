@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ArtworkService } from 'src/artwork/artwork.service';
+import { ArtworkEntity } from 'src/artwork/artwork.entity';
+import { ArtworkFields } from 'src/constants';
 import { CreateRatingDTO } from './dto/create-rating.dto';
 import { UpdateRatingDTO } from './dto/update-rating.dto';
 import { RatingEntity } from './rating.entity';
@@ -41,15 +42,28 @@ export class RatingService {
         return res;
     }
 
-    async findArtworkByUserId(userId: number): Promise<RatingEntity[]> {
-        const res = await this.RatingRepository
-            .createQueryBuilder('ratings')
-            .innerJoin('ratings.artwork', 'artwork')
-            .addSelect('artwork.id').addSelect('artwork.picLink').addSelect('artwork.averageRating')
-            .where("user_id = :userId", { userId })
-            .getMany();
-        if(!res) throw new NotFoundException({message: 'No rating found'});
-        return res;
+    async findArtworkRatedByUser(userId: number): Promise<any> {
+        const userRatings = await this.ratedArtworks(userId)
+        if(!userRatings) throw new NotFoundException({message: 'No artworks found'});
+        const artworks = this.addUserRating(userRatings)
+        const artworkFilters = this.artworkFilters(artworks)
+        return { artworks, ...artworkFilters };
+    }
+
+    async findFilteredArtworkRatedByUser(nameFilter, artistFilter, styleFilter, museumFilter, userId: number): Promise<any>{
+        const options = {
+            name: nameFilter,
+            artist: artistFilter,
+            style: styleFilter,
+            museum: museumFilter
+        }
+        const userRatings = await this.ratedArtworks(userId)
+        if(!userRatings) throw new NotFoundException({message: 'No artworks found'});
+
+        const ratedArtworks = this.addUserRating(userRatings)
+        const artworks = this.filterArtworksByOptions(ratedArtworks, options)
+        const artworkFilters = this.artworkFilters(artworks)
+        return { artworks, ...artworkFilters };
     }
 
     async create(dto: CreateRatingDTO): Promise<RatingEntity> {
@@ -76,5 +90,46 @@ export class RatingService {
         if (!rating) throw new NotFoundException({message: 'No rating found'});
         await this.RatingRepository.save(Object.assign(rating, dto));
         return rating
+    }
+
+    /*HELPERS*/
+
+    ratedArtworks(userId: number){
+        return this.RatingRepository
+        .createQueryBuilder('ratings')
+        .innerJoin('ratings.artwork', 'artwork')
+        .addSelect('artwork')
+        .where("user_id = :userId", { userId })
+        .getMany();
+    }
+
+    artworkFilters(artworks: ArtworkEntity[]){
+        return ArtworkFields.reduce((acc, filter) => {
+            acc[`${filter}Filter`] = [...new Set(artworks.map((artwork) => artwork[filter]))];
+            return acc;
+        }, {});
+    }
+
+    addUserRating(ratedArtworks): ArtworkEntity[]{
+        return ratedArtworks.map((obj) => {
+            obj.artwork.userRating = obj.value;
+            return obj.artwork;
+        });
+    }
+
+    filterArtworksByOptions(artworks: ArtworkEntity[], options): ArtworkEntity[] {
+        const toCheck = {
+            name: (artwork, options) => !options.name || artwork.name === options.name,
+            artist: (artwork, options) => !options.artist || artwork.artist === options.artist,
+            museum: (artwork, options) => !options.museum || artwork.museum === options.museum,
+            style: (artwork, options) => !options.style || artwork.style === options.style
+        };
+          
+        return artworks.filter(artwork => {
+          return Object.keys(toCheck).every(key => {
+            const filter = toCheck[key];
+            return filter(artwork, options);
+          });
+        });
     }
 }

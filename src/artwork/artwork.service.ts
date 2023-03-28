@@ -14,16 +14,9 @@ export class ArtworkService {
 
     async getAll(userId?: number): Promise<any> {
         let artworks = await this.ArtworkRepository.find();
-
         if(userId) artworks = await this.seen(userId, artworks)
         if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
-
-        return {
-            artworks, ...ArtworkFields.reduce((acc, filter) => {
-                acc[`${filter}Filter`] = [...new Set(artworks.map((artwork) => artwork[filter]))];
-                return acc;
-            }, {}),
-        };
+        return { artworks, ...this.artworkFilters(artworks) };
     }
 
     async findById(id: number): Promise<ArtworkEntity> {
@@ -40,18 +33,9 @@ export class ArtworkService {
             museum: museumFilter
         }
         let artworks: ArtworkEntity[] = await this.ArtworkRepository.find({ where: options });
-
         if(userId) artworks = await this.seen(userId, artworks)
         if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
-
-        return Object.keys(options).reduce(
-            (acc, filter) => {
-                acc[`${filter}Filter`] = [...new Set(artworks.map(
-                    (artwork) => artwork[filter]
-                ))];
-                return acc;
-
-            }, { artworks });
+        return { artworks, ...this.artworkFilters(artworks) };
     }
 
     async create(dto: ArtworkDTO): Promise<ArtworkEntity> {
@@ -74,7 +58,19 @@ export class ArtworkService {
         return artwork
     }
 
-    async seen(userId, artworks) {
+    /*HELPERS*/
+
+    artworkFilters(artworks: ArtworkEntity[]){
+        return ArtworkFields.reduce((acc, filter) => {
+            acc[`${filter}Filter`] = [...new Set(artworks.map((artwork) => artwork[filter]))];
+            return acc;
+        }, {});
+    }
+
+    //Comprueba de las obras dadas, cuales han sido valoradas por el usuario
+    //Si la obra ha sido valorada, establece SEEN a true (Ojo verde en la card)
+    //En caso contrario, false (Ojo blanco en la card)
+    async seen(userId: number, artworks: ArtworkEntity[]) {
         for (let i = 0; i < artworks.length; i++) {
             let artwork = artworks[i];
             let ratedByCurrentUser = await this.ArtworkRepository
@@ -86,7 +82,6 @@ export class ArtworkService {
                 .where("artworks.id = :id", { id: artwork.id })
                 .andWhere("ratings.user_id = :userId", { userId: userId })
                 .getOne();
-
             artworks[i].seen = !!ratedByCurrentUser;
         }
         return artworks
