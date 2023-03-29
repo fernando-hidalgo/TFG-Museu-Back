@@ -24,6 +24,17 @@ export class ArtListService {
         return res;
     }
 
+    async findByUserId(userId: number) {
+        let lists = await this.ArtListRepository
+        .createQueryBuilder('art_lists')
+        .innerJoinAndSelect("art_lists.artworks", "artwork")
+        .where("user_id = :id", { id: userId })
+        .getMany();
+        
+        if(!lists) throw new NotFoundException({message: 'User has no lists'});
+        return lists;
+    }
+
     async create(dto: CreateArtListDTO): Promise<void> {
         //Get list data from body object
         let l = Object.assign(new ArtListEntity(), {name: dto.name, text: dto.text})
@@ -65,7 +76,8 @@ export class ArtListService {
         );
     }
 
-    //Helpers
+    /*HELPERS*/
+
     //To use in CREATE
     async addArtworkToList(id: number, artworkId: number): Promise<void> {
         await this.ArtListRepository

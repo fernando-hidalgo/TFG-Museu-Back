@@ -19,6 +19,11 @@ export class ArtListController {
         return await this.ArtListService.findById(id);
     }
 
+    @Get('/user/:id')
+    async findByUserId(@Param('id', ParseIntPipe) userId: number) {
+        return await this.ArtListService.findByUserId(userId);
+    }
+
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     async create(@Body() dto: CreateArtListDTO) {
