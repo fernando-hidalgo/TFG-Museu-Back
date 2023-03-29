@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ArtAndFilters } from 'src/app.interfaces';
 import { ArtworkFields } from 'src/constants';
 import { ArtworkEntity } from './artwork.entity';
 import { ArtworkRepository } from './artwork.repository';
@@ -12,11 +13,11 @@ export class ArtworkService {
         private ArtworkRepository: ArtworkRepository
     ) { }
 
-    async getAll(userId?: number): Promise<any> {
+    async getAll(userId?: number): Promise<ArtAndFilters> {
         let artworks = await this.ArtworkRepository.find();
         if(userId) artworks = await this.seen(userId, artworks)
         if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
-        return { artworks, ...this.artworkFilters(artworks) };
+        return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
     }
 
     async findById(id: number): Promise<ArtworkEntity> {
@@ -25,7 +26,7 @@ export class ArtworkService {
         return res;
     }
 
-    async findFiltered(nameFilter, artistFilter, styleFilter, museumFilter, userId?): Promise<any> {
+    async findFiltered(nameFilter, artistFilter, styleFilter, museumFilter, userId?): Promise<ArtAndFilters> {
         const options = {
             name: nameFilter,
             artist: artistFilter,
@@ -35,7 +36,7 @@ export class ArtworkService {
         let artworks: ArtworkEntity[] = await this.ArtworkRepository.find({ where: options });
         if(userId) artworks = await this.seen(userId, artworks)
         if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
-        return { artworks, ...this.artworkFilters(artworks) };
+        return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
     }
 
     async create(dto: ArtworkDTO): Promise<ArtworkEntity> {
@@ -67,9 +68,6 @@ export class ArtworkService {
         }, {});
     }
 
-    //Comprueba de las obras dadas, cuales han sido valoradas por el usuario
-    //Si la obra ha sido valorada, establece SEEN a true (Ojo verde en la card)
-    //En caso contrario, false (Ojo blanco en la card)
     async seen(userId: number, artworks: ArtworkEntity[]) {
         for (let i = 0; i < artworks.length; i++) {
             let artwork = artworks[i];

@@ -14,9 +14,14 @@ export class ArtListController {
         return this.ArtListService.getAll();
     }
 
-    @Get(':id')
-    async getOne(@Param('id', ParseIntPipe) id: number) {
-        return await this.ArtListService.findById(id);
+    @Get(':artlistId')
+    async getOne(@Param('artlistId', ParseIntPipe) artlistId: number) {
+        return await this.ArtListService.findById(artlistId);
+    }
+
+    @Get(':artlistId/user/:userId')
+    async getOneLogged(@Param('artlistId', ParseIntPipe) artlistId: number, @Param('userId', ParseIntPipe) userId: number) {
+        return await this.ArtListService.findById(artlistId, userId);
     }
 
     @Get('/user/:id')

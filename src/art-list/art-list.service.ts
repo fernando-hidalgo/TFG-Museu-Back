@@ -1,7 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ArtAndFilters } from 'src/app.interfaces';
+import { ArtworkEntity } from 'src/artwork/artwork.entity';
+import { ArtworkFields } from 'src/constants';
 import { ArtListEntity } from './art-list.entity';
 import { ArtListRepository } from './art-list.repository';
+import { ArtworkRepository } from '../artwork/artwork.repository';
 import { CreateArtListDTO } from './dto/create-art-list.dto';
 import { UpdateArtListDTO } from './dto/update-art-list.dto';
 
@@ -9,7 +13,10 @@ import { UpdateArtListDTO } from './dto/update-art-list.dto';
 export class ArtListService {
     constructor(
         @InjectRepository(ArtListEntity)
-        private ArtListRepository: ArtListRepository
+        private ArtListRepository: ArtListRepository,
+
+        @InjectRepository(ArtworkEntity)
+        private ArtworkRepository: ArtworkRepository
     ) {}
 
     async getAll(): Promise<ArtListEntity[]> {
@@ -18,21 +25,31 @@ export class ArtListService {
         return res;
     }
 
-    async findById(id: number): Promise<ArtListEntity> {
-        const res = await this.ArtListRepository.findOne({where: { id }});
-        if(!res) throw new NotFoundException({message: 'No list found'});
-        return res;
+    async findById(artlistId: number, userId?: number): Promise<ArtAndFilters> {
+        let list = await this.ArtListRepository
+        .createQueryBuilder('art_lists')
+        .innerJoinAndSelect("art_lists.artworks", "artwork")
+        .where("art_lists.id = :id", { id: artlistId })
+        .getOne();
+        if(!list) throw new NotFoundException({message: 'No list found'});
+        let artworks = list.artworks
+        if(userId) artworks = await this.seen(userId, artworks)
+        return { artworks, ...this.artworkFilters(list.artworks) } as ArtAndFilters ;
+    }
+
+    async findFilteredInList(artlistId: number, userId?: number){
+
     }
 
     async findByUserId(userId: number) {
-        let lists = await this.ArtListRepository
+        let res = await this.ArtListRepository
         .createQueryBuilder('art_lists')
         .innerJoinAndSelect("art_lists.artworks", "artwork")
         .where("user_id = :id", { id: userId })
         .getMany();
         
-        if(!lists) throw new NotFoundException({message: 'User has no lists'});
-        return lists;
+        if(!res) throw new NotFoundException({message: 'User has no lists'});
+        return res;
     }
 
     async create(dto: CreateArtListDTO): Promise<void> {
@@ -77,6 +94,30 @@ export class ArtListService {
     }
 
     /*HELPERS*/
+
+    artworkFilters(artworks: ArtworkEntity[]){
+        return ArtworkFields.reduce((acc, filter) => {
+            acc[`${filter}Filter`] = [...new Set(artworks.map((artwork) => artwork[filter]))];
+            return acc;
+        }, {});
+    }
+    
+    async seen(userId: number, artworks: ArtworkEntity[]) {
+        for (let i = 0; i < artworks.length; i++) {
+            let artwork = artworks[i];
+            let ratedByCurrentUser = await this.ArtworkRepository
+                .createQueryBuilder('artworks')
+                .innerJoin('artworks.ratings', 'ratings')
+                .addSelect('ratings')
+                .innerJoin('ratings.user', 'user')
+                .addSelect('user.id')
+                .where("artworks.id = :id", { id: artwork.id })
+                .andWhere("ratings.user_id = :userId", { userId: userId })
+                .getOne();
+            artworks[i].seen = !!ratedByCurrentUser;
+        }
+        return artworks
+    }
 
     //To use in CREATE
     async addArtworkToList(id: number, artworkId: number): Promise<void> {
