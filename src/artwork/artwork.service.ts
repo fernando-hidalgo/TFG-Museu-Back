@@ -13,7 +13,7 @@ export class ArtworkService {
         private ArtworkRepository: ArtworkRepository
     ) { }
 
-    async getAll(userId?: number): Promise<ArtAndFilters> {
+    async getAll(userId: number): Promise<ArtAndFilters> {
         let artworks = await this.ArtworkRepository.find();
         if(userId) artworks = await this.seen(userId, artworks)
         if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
@@ -26,7 +26,7 @@ export class ArtworkService {
         return res;
     }
 
-    async findFiltered(nameFilter, artistFilter, styleFilter, museumFilter, userId?): Promise<ArtAndFilters> {
+    async findFiltered(nameFilter, artistFilter, styleFilter, museumFilter, userId): Promise<ArtAndFilters> {
         const options = {
             name: nameFilter,
             artist: artistFilter,
