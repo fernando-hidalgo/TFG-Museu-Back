@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
-import { UsePipes } from '@nestjs/common/decorators';
+import { Query, UsePipes } from '@nestjs/common/decorators';
 import { ValidationPipe } from '@nestjs/common/pipes';
 import { ArtListService } from './art-list.service';
 import { CreateArtListDTO } from './dto/create-art-list.dto';
@@ -15,13 +15,21 @@ export class ArtListController {
     }
 
     @Get(':artlistId')
-    async getOne(@Param('artlistId', ParseIntPipe) artlistId: number) {
-        return await this.ArtListService.findById(artlistId);
+    async getOne(
+        @Param('artlistId', ParseIntPipe) artlistId: number,
+        @Query('currentUserId') currentUserId: number) {
+        return await this.ArtListService.findById(artlistId, currentUserId);
     }
 
-    @Get(':artlistId/user/:userId')
-    async getOneLogged(@Param('artlistId', ParseIntPipe) artlistId: number, @Param('userId', ParseIntPipe) userId: number) {
-        return await this.ArtListService.findById(artlistId, userId);
+    @Get('filtered/:artlistId')
+    async getFiltered(
+        @Param('artlistId', ParseIntPipe) artlistId: number,
+        @Query('nameFilter') nameFilter: string,
+        @Query('artistFilter') artistFilter: string,
+        @Query('styleFilter') styleFilter: string,
+        @Query('museumFilter') museumFilter: string,
+        @Query('currentUserId') currentUserId: number) {
+        return await this.ArtListService.findFilteredInList(artlistId, nameFilter, artistFilter, styleFilter, museumFilter, currentUserId);
     }
 
     @Get('/user/:id')

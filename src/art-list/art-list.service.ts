@@ -25,7 +25,7 @@ export class ArtListService {
         return res;
     }
 
-    async findById(artlistId: number, userId?: number): Promise<ArtAndFilters> {
+    async findById(artlistId: number, currentUserId: number): Promise<ArtAndFilters> {
         let list = await this.ArtListRepository
         .createQueryBuilder('art_lists')
         .innerJoinAndSelect("art_lists.artworks", "artwork")
@@ -33,12 +33,29 @@ export class ArtListService {
         .getOne();
         if(!list) throw new NotFoundException({message: 'No list found'});
         let artworks = list.artworks
-        if(userId) artworks = await this.seen(userId, artworks)
+        artworks = await this.seen(currentUserId, artworks)
         return { artworks, ...this.artworkFilters(list.artworks) } as ArtAndFilters ;
     }
 
-    async findFilteredInList(artlistId: number, userId?: number){
+    async findFilteredInList(artlistId, nameFilter, artistFilter, styleFilter, museumFilter, currentUserId){
+        const options = {
+            name: nameFilter,
+            artist: artistFilter,
+            style: styleFilter,
+            museum: museumFilter
+        }
 
+        let list = await this.ArtListRepository
+        .createQueryBuilder('art_lists')
+        .innerJoinAndSelect("art_lists.artworks", "artwork")
+        .where("art_lists.id = :id", { id: artlistId })
+        .getOne();
+
+        if(!list) throw new NotFoundException({message: 'No list found'});
+        let artworks = this.filterArtworksByOptions(list.artworks, options)
+        if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
+        artworks = await this.seen(currentUserId, artworks)
+        return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
     }
 
     async findByUserId(userId: number) {
@@ -128,6 +145,22 @@ export class ArtListService {
             .values([
                 { artListsId: id, artworksId: artworkId }
             ]).execute()
+    }
+
+    filterArtworksByOptions(artworks: ArtworkEntity[], options): ArtworkEntity[] {
+        const toCheck = {
+            name: (artwork, options) => !options.name || artwork.name === options.name,
+            artist: (artwork, options) => !options.artist || artwork.artist === options.artist,
+            museum: (artwork, options) => !options.museum || artwork.museum === options.museum,
+            style: (artwork, options) => !options.style || artwork.style === options.style
+        };
+          
+        return artworks.filter(artwork => {
+          return Object.keys(toCheck).every(key => {
+            const filter = toCheck[key];
+            return filter(artwork, options);
+          });
+        });
     }
 
     //Inutil, eliminar al final si no se usa nunca
