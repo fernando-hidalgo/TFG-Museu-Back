@@ -47,24 +47,27 @@ export class RatingService {
         return res;
     }
 
-    async findArtworkRatedByUser(userId: number): Promise<ArtAndFilters> {
-        const userRatings = await this.ratedArtworks(userId)
+    async findArtworkRatedByUser(profileId, currentUserId): Promise<ArtAndFilters> {
+        const userRatings = await this.ratedArtworks(profileId)
         if(!userRatings) throw new NotFoundException({message: 'No artworks found'});
-        const artworks = this.addUserRating(userRatings)
+        let artworks = this.addUserRating(userRatings)
+        artworks = await this.seen(currentUserId, artworks)
         return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
     }
 
-    async findFilteredArtworkRatedByUser(nameFilter: string, artistFilter: string, styleFilter: string, museumFilter: string, userId: number): Promise<ArtAndFilters>{
+    async findFilteredArtworkRatedByUser(nameFilter: string, artistFilter: string, styleFilter: string, museumFilter: string, profileId: number, currentUserId: number): Promise<ArtAndFilters>{
+        console.log(profileId, currentUserId)
         const options = {
             name: nameFilter,
             artist: artistFilter,
-            style: styleFilter,
+            style: styleFilter, 
             museum: museumFilter
         }
-        const userRatings = await this.ratedArtworks(userId)
+        const userRatings = await this.ratedArtworks(profileId)
         if(!userRatings) throw new NotFoundException({message: 'No artworks found'});
         const ratedArtworks = this.addUserRating(userRatings)
-        const artworks = this.filterArtworksByOptions(ratedArtworks, options)
+        let artworks = this.filterArtworksByOptions(ratedArtworks, options)
+        artworks = await this.seen(currentUserId, artworks)
         return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
     }
 

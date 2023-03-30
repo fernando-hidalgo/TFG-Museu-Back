@@ -27,8 +27,10 @@ export class RatingController {
     }
 
     @Get('/user/:id')
-    async findArtworkRatedByUser(@Param('id', ParseIntPipe) id: number) {
-        return await this.RatingService.findArtworkRatedByUser(id);
+    async findArtworkRatedByUser(
+        @Param('id', ParseIntPipe) profileId: number,
+        @Query('currentUserId') currentUserId: number) {
+        return await this.RatingService.findArtworkRatedByUser(profileId, currentUserId);
     }
 
     @Get('/filtered/user/:id')
@@ -37,8 +39,9 @@ export class RatingController {
         @Query('artistFilter') artistFilter: string,
         @Query('styleFilter') styleFilter: string,
         @Query('museumFilter') museumFilter: string,
-        @Param('id', ParseIntPipe) userId: number) {
-        return await this.RatingService.findFilteredArtworkRatedByUser(nameFilter, artistFilter, styleFilter, museumFilter, userId);
+        @Param('id', ParseIntPipe) profileId: number,
+        @Query('currentUserId') currentUserId: number) {
+        return await this.RatingService.findFilteredArtworkRatedByUser(nameFilter, artistFilter, styleFilter, museumFilter, profileId, currentUserId);
     }
 
     //TODO: Descomentar cuando ya funcione el LOGIN
