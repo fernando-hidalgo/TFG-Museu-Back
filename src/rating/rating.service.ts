@@ -102,8 +102,7 @@ export class RatingService {
     ratedArtworks(userId: number){
         return this.RatingRepository
         .createQueryBuilder('ratings')
-        .innerJoin('ratings.artwork', 'artwork')
-        .addSelect('artwork')
+        .innerJoinAndSelect('ratings.artwork', 'artwork')
         .where("user_id = :userId", { userId })
         .getMany();
     }
@@ -127,8 +126,7 @@ export class RatingService {
             let artwork = artworks[i];
             let ratedByCurrentUser = await this.ArtworkRepository
                 .createQueryBuilder('artworks')
-                .innerJoin('artworks.ratings', 'ratings')
-                .addSelect('ratings')
+                .innerJoinAndSelect('artworks.ratings', 'ratings')
                 .innerJoin('ratings.user', 'user')
                 .addSelect('user.id')
                 .where("artworks.id = :id", { id: artwork.id })

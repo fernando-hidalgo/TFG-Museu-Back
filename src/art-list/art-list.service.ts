@@ -124,8 +124,7 @@ export class ArtListService {
             let artwork = artworks[i];
             let ratedByCurrentUser = await this.ArtworkRepository
                 .createQueryBuilder('artworks')
-                .innerJoin('artworks.ratings', 'ratings')
-                .addSelect('ratings')
+                .innerJoinAndSelect('artworks.ratings', 'ratings')
                 .innerJoin('ratings.user', 'user')
                 .addSelect('user.id')
                 .where("artworks.id = :id", { id: artwork.id })
