@@ -11,6 +11,10 @@ import { UpdateArtListDTO } from './dto/update-art-list.dto';
 
 @Injectable()
 export class ArtListService {
+    NodeGeocoder = require('node-geocoder');
+    options = {provider: 'openstreetmap'};
+    geocoder = this.NodeGeocoder(this.options);
+
     constructor(
         @InjectRepository(ArtListEntity)
         private ArtListRepository: ArtListRepository,
@@ -34,6 +38,7 @@ export class ArtListService {
         if(!list) throw new NotFoundException({message: 'No list found'});
         let artworks = list.artworks
         artworks = await this.seen(currentUserId, artworks)
+        artworks = await this.addGeo(artworks)
         return { artworks, ...this.artworkFilters(list.artworks) } as ArtAndFilters ;
     }
 
@@ -55,6 +60,7 @@ export class ArtListService {
         let artworks = this.filterArtworksByOptions(list.artworks, options)
         if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
         artworks = await this.seen(currentUserId, artworks)
+        artworks = await this.addGeo(artworks)
         return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
     }
 
@@ -133,6 +139,21 @@ export class ArtListService {
             artworks[i].seen = !!ratedByCurrentUser;
         }
         return artworks
+    }
+
+    async addGeo(artworks: ArtworkEntity[]) {
+        const geoPromises = artworks.map((artwork) =>
+          this.geocoder.geocode(artwork.museum)
+        );
+        const geocodes = await Promise.all(geoPromises);
+        return artworks.map((artwork, i) => {
+          const [geocode] = geocodes[i];
+          return {
+            ...artwork,
+            latitude: geocode?.latitude,
+            longitude: geocode?.longitude,
+          };
+        });
     }
 
     //To use in CREATE

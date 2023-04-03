@@ -44,6 +44,7 @@ export class ArtworkEntity {
 
     //No deben ser columnas en BD
     seen: boolean;
-    
     userRating: number;
+    latitude: number;
+    longitude: number;
 }
