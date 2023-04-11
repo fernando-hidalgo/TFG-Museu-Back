@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common/pipes';
 import { ArtListService } from './art-list.service';
 import { CreateArtListDTO } from './dto/create-art-list.dto';
 import { UpdateArtListDTO } from './dto/update-art-list.dto';
+import { ArtworkEntity } from 'src/artwork/artwork.entity';
 
 @Controller('art-list')
 export class ArtListController {
@@ -35,6 +36,13 @@ export class ArtListController {
     @Get('/user/:id')
     async findByUserId(@Param('id', ParseIntPipe) userId: number) {
         return await this.ArtListService.findByUserId(userId);
+    }
+
+    @Put('/edit/:id')
+    async findListToEdit(
+        @Param('id', ParseIntPipe) artlistId: number,
+        @Body() body: any) {
+        return await this.ArtListService.findListToEdit(artlistId, body);
     }
 
     @UsePipes(new ValidationPipe({whitelist: true}))

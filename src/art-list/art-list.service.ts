@@ -8,6 +8,7 @@ import { ArtListRepository } from './art-list.repository';
 import { ArtworkRepository } from '../artwork/artwork.repository';
 import { CreateArtListDTO } from './dto/create-art-list.dto';
 import { UpdateArtListDTO } from './dto/update-art-list.dto';
+import { In, Not } from 'typeorm';
 
 @Injectable()
 export class ArtListService {
@@ -39,7 +40,39 @@ export class ArtListService {
         let artworks = list.artworks
         artworks = await this.seen(currentUserId, artworks)
         artworks = await this.addGeo(artworks)
+        //TODO: Debe tambien devolver el nombre y descripcción de la lista
         return { artworks, ...this.artworkFilters(list.artworks) } as ArtAndFilters ;
+    }
+
+    async findListToEdit(artlistId: number, body?: any) {
+        let list = await this.ArtListRepository
+            .createQueryBuilder('art_lists')
+            .innerJoinAndSelect("art_lists.artworks", "artwork")
+            .where("art_lists.id = :id", { id: artlistId })
+            .getOne();
+        if (!list) throw new NotFoundException({ message: 'No list found' });
+
+        let artworksInList: ArtworkEntity[];
+        if (body?.currentArtworks?.length) {
+            artworksInList = body.currentArtworks
+        } else {
+            artworksInList = list.artworks
+        }
+
+        const namesInList: string[] = artworksInList.map(artwork => artwork.name);
+        const artworksToSuggest: ArtworkEntity[] = await this.ArtworkRepository.findBy({
+            name: Not(In(namesInList))
+        });
+        const artworksIds = artworksToSuggest.map(artwork => artwork.id);
+        const filters = this.artworkFilters(artworksToSuggest);
+
+        return {
+            name: list.name,
+            description: list.text,
+            artworks: artworksInList,
+            nameFilter: filters['nameFilter'],
+            artworksIds,
+        };
     }
 
     async findFilteredInList(artlistId, nameFilter, artistFilter, styleFilter, museumFilter, currentUserId){
@@ -105,7 +138,7 @@ export class ArtListService {
 
         //Update ArtList contens (Artworks saved in that list)
         //First delete all artworks contained, then save the new array of artworks the list contains
-        await this.ArtListRepository
+        /*await this.ArtListRepository
             .createQueryBuilder('art_list_contains')
             .delete()
             .from('art_list_contains')
@@ -113,7 +146,7 @@ export class ArtListService {
             .execute();
         dto.artworksIds.forEach(e => 
             this.addArtworkToList(id, e)
-        );
+        );*/
     }
 
     /*HELPERS*/
@@ -142,7 +175,7 @@ export class ArtListService {
     }
 
     async addGeo(artworks: ArtworkEntity[]) {
-        const geoPromises = artworks.map((artwork) =>
+        const geoPromises = artworks.map(artwork =>
           this.geocoder.geocode(artwork.museum)
         );
         const geocodes = await Promise.all(geoPromises);
