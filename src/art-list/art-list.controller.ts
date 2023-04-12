@@ -3,8 +3,6 @@ import { Query, UsePipes } from '@nestjs/common/decorators';
 import { ValidationPipe } from '@nestjs/common/pipes';
 import { ArtListService } from './art-list.service';
 import { CreateArtListDTO } from './dto/create-art-list.dto';
-import { UpdateArtListDTO } from './dto/update-art-list.dto';
-import { ArtworkEntity } from 'src/artwork/artwork.entity';
 
 @Controller('art-list')
 export class ArtListController {
@@ -58,7 +56,7 @@ export class ArtListController {
 
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Put(':id')
-    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateArtListDTO) {
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
         return await this.ArtListService.update(id, dto);
     }
 }

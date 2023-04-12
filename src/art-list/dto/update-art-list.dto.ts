@@ -10,7 +10,7 @@ export class UpdateArtListDTO{
     @IsString()
     text?: string;
 
-    /*@IsNumber({},{each: true})
-    @ArrayNotEmpty()
-    artworksIds?: number[];*/
+    //@IsNumber({},{each: true})
+    //@ArrayNotEmpty()
+    artworksIds?: number[];
 }

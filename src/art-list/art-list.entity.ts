@@ -20,7 +20,7 @@ export class ArtListEntity {
     @JoinColumn({ name: 'user_id' })
     user: UserEntity;
 
-    @ManyToMany(type => ArtworkEntity, { eager: true })
+    @ManyToMany(type => ArtworkEntity, { nullable: true, eager: true })
     @JoinTable({
         name: 'art_list_contains',
         joinColumn: {name: 'art_list_id'},

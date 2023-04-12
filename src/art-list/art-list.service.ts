@@ -47,13 +47,13 @@ export class ArtListService {
     async findListToEdit(artlistId: number, body?: any) {
         let list = await this.ArtListRepository
             .createQueryBuilder('art_lists')
-            .innerJoinAndSelect("art_lists.artworks", "artwork")
+            .leftJoinAndSelect("art_lists.artworks", "artwork")
             .where("art_lists.id = :id", { id: artlistId })
             .getOne();
         if (!list) throw new NotFoundException({ message: 'No list found' });
 
         let artworksInList: ArtworkEntity[];
-        if (body?.currentArtworks?.length) {
+        if (body?.currentArtworks) {
             artworksInList = body.currentArtworks
         } else {
             artworksInList = list.artworks
@@ -125,10 +125,10 @@ export class ArtListService {
         await this.ArtListRepository.delete(list as any);
     }
 
-    async update(id: number, dto: UpdateArtListDTO): Promise<void> {
+    async update(artlistId: number, dto: UpdateArtListDTO): Promise<void> {
         const list = await this.ArtListRepository
             .createQueryBuilder('art_lists')
-            .where("id = :id", { id: id })
+            .where("id = :id", { id: artlistId })
             .getOne();
         if (!list) throw new NotFoundException({message: 'No list found'});
 
@@ -138,15 +138,15 @@ export class ArtListService {
 
         //Update ArtList contens (Artworks saved in that list)
         //First delete all artworks contained, then save the new array of artworks the list contains
-        /*await this.ArtListRepository
+        await this.ArtListRepository
             .createQueryBuilder('art_list_contains')
             .delete()
             .from('art_list_contains')
-            .where("artListsId = :id", { id: id })
+            .where("art_list_id = :id", { id: artlistId })
             .execute();
         dto.artworksIds.forEach(e => 
-            this.addArtworkToList(id, e)
-        );*/
+            this.addArtworkToList(artlistId, e)
+        );
     }
 
     /*HELPERS*/
@@ -196,7 +196,7 @@ export class ArtListService {
             .insert()
             .into('art_list_contains')
             .values([
-                { artListsId: id, artworksId: artworkId }
+                { art_list_id: id, artwork_id: artworkId }
             ]).execute()
     }
 
@@ -214,10 +214,5 @@ export class ArtListService {
             return filter(artwork, options);
           });
         });
-    }
-
-    //Inutil, eliminar al final si no se usa nunca
-    async deleteArtworksFromList(id: number, artworksIds: number[]): Promise<void> {
-        await this.ArtListRepository.query(`DELETE FROM art_list_contains WHERE artListsId = ? AND artworksId IN (?);`, [id, artworksIds]);
     }
 }
