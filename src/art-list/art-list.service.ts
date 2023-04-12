@@ -33,9 +33,10 @@ export class ArtListService {
     async findById(artlistId: number, currentUserId: number): Promise<ArtAndFilters> {
         let list = await this.ArtListRepository
         .createQueryBuilder('art_lists')
-        .innerJoinAndSelect("art_lists.artworks", "artwork")
+        .leftJoinAndSelect("art_lists.artworks", "artwork")
         .where("art_lists.id = :id", { id: artlistId })
         .getOne();
+        
         if(!list) throw new NotFoundException({message: 'No list found'});
         let artworks = list.artworks
         artworks = await this.seen(currentUserId, artworks)
@@ -100,7 +101,7 @@ export class ArtListService {
     async findByUserId(userId: number) {
         let res = await this.ArtListRepository
         .createQueryBuilder('art_lists')
-        .innerJoinAndSelect("art_lists.artworks", "artwork")
+        .leftJoinAndSelect("art_lists.artworks", "artwork")
         .where("user_id = :id", { id: userId })
         .getMany();
         
