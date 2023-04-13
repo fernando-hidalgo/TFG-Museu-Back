@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
-import { Query, UsePipes } from '@nestjs/common/decorators';
+import { Query, UploadedFile, UseInterceptors, UsePipes } from '@nestjs/common/decorators';
 import { ValidationPipe } from '@nestjs/common/pipes';
 import { ArtListService } from './art-list.service';
 import { CreateArtListDTO } from './dto/create-art-list.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('art-list')
 export class ArtListController {
@@ -58,5 +59,15 @@ export class ArtListController {
     @Put(':id')
     async update(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
         return await this.ArtListService.update(id, dto);
+    }
+
+    @UsePipes(new ValidationPipe({whitelist: true}))
+    @Post('cover/:id')
+    @UseInterceptors(FileInterceptor('file'))
+    async saveCover(
+        @Param('id', ParseIntPipe) artlistId: number,
+        @UploadedFile() file: Express.Multer.File) {
+        console.log(artlistId)
+        console.log(file) //TODO: Add S3 bucket to SAVE/EDIT/DELETE cover image
     }
 }
