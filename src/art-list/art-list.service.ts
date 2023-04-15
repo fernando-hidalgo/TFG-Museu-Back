@@ -9,6 +9,8 @@ import { ArtworkRepository } from '../artwork/artwork.repository';
 import { CreateArtListDTO } from './dto/create-art-list.dto';
 import { UpdateArtListDTO } from './dto/update-art-list.dto';
 import { In, Not } from 'typeorm';
+import { S3 } from 'aws-sdk';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
 export class ArtListService {
@@ -148,6 +150,40 @@ export class ArtListService {
         dto.artworksIds.forEach(e => 
             this.addArtworkToList(artlistId, e)
         );
+    }
+
+    async uploadCover(artlistId: number, dataBuffer: Buffer) {
+        try {
+            const AWSParams = {
+                Bucket: 'museu-tfg',
+                Body: dataBuffer || "",
+                Key: `cover-${artlistId}.jpg`
+            }
+
+            const s3 = new S3();
+            const uploadResult = await s3.upload(AWSParams).promise();
+            return { key: uploadResult.Key };
+        } catch (err) {
+            console.log(err);
+            return { key: 'error', message: err.message };
+        }
+    }
+
+    async getCover(artlistId: number) {
+        try {
+            const AWSParams = {
+                Bucket: 'museu-tfg',
+                Key: `cover-${artlistId}.jpg`,
+                Expires: 60 * 60 // Tiempo de expiración en segundos (1 hora en este ejemplo)
+            }
+
+            const s3 = new S3();
+            return { url: s3.getSignedUrl('getObject', AWSParams)};
+        } catch (err) {
+            console.log(err);
+            return { key: 'error', message: err.message };
+        }
+
     }
 
     /*HELPERS*/

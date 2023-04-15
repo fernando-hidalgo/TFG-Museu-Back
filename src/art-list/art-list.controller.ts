@@ -67,7 +67,12 @@ export class ArtListController {
     async saveCover(
         @Param('id', ParseIntPipe) artlistId: number,
         @UploadedFile() file: Express.Multer.File) {
-        console.log(artlistId)
-        console.log(file) //TODO: Add S3 bucket to SAVE/EDIT/DELETE cover image
+        return await this.ArtListService.uploadCover(artlistId, file?.buffer);
+    }
+
+    @Get('cover/:id')
+    async getCover(
+        @Param('id', ParseIntPipe) artlistId: number) {
+        return await this.ArtListService.getCover(artlistId);
     }
 }
