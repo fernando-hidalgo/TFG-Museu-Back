@@ -1,6 +1,6 @@
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserService } from './user.service';
-import { Body, Controller, Get, Post, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 
 @Controller('user')
 export class UserController {
@@ -10,6 +10,13 @@ export class UserController {
     @Get()
     getAll() {
         return this.UserService.getAll();
+    }
+
+    @Get('/fields')
+    async findByFields(
+        @Query('nickname') nickname: string,
+        @Query('email') email: string,) {
+        return await this.UserService.getUserByFields(nickname, email);
     }
 
     @UsePipes(new ValidationPipe({whitelist: true}))

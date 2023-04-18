@@ -23,6 +23,22 @@ export class UserService {
         return usuarios;
     }
 
+    async getUserByFields(nickname, email): Promise<Boolean> {
+        let isAvailable: boolean
+        const usuarios = await this.UserRepository
+            .createQueryBuilder("user")
+            .select(["user.nickname"])
+            .where("user.nickname = :nickname", { nickname })
+            .orWhere("user.email = :email", { email })
+            .getMany();
+        if (usuarios.length != 0) {
+            isAvailable = false;
+        } else {
+            isAvailable = true
+        }
+        return isAvailable;
+    }
+
     async createAdminUser(dto: CreateUserDTO): Promise<any> {
         const {nickname, email} = dto;
         const exists = await this.UserRepository.findOne({where: [{nickname: nickname}, {email: email}]});
