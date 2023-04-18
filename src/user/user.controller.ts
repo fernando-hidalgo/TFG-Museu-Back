@@ -19,6 +19,13 @@ export class UserController {
         return await this.UserService.getUserByFields(nickname, email);
     }
 
+    @Get('/acount-exists')
+    async findAccountExists(
+        @Query('nick_or_mail') nick_or_mail: string,
+        @Query('password') password: string,) {
+        return await this.UserService.getAccountExists(nick_or_mail, password);
+    }
+
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post('/createAdminUser')
     createAdminUser(@Body() dto: CreateUserDTO) {
@@ -26,7 +33,7 @@ export class UserController {
     }
 
     @UsePipes(new ValidationPipe({whitelist: true}))
-    @Post('/createRegularUser')
+    @Post('/create-regular-user')
     createRegularUser(@Body() dto: CreateUserDTO) {
         return this.UserService.createRegularUser(dto);
     }

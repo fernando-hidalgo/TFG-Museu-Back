@@ -22,11 +22,8 @@ export class AuthService {
         const user = await this.AuthRepository.findOne({where: [{nickname: nick_or_mail}, {email: nick_or_mail}]});
         if(!user) return new UnauthorizedException({message: 'No user found'});
 
-        console.log(dto.password, user.password)
-
         const passwordOK = await compare(dto.password, user.password);
         if(!passwordOK) return new UnauthorizedException({message: 'Wrong credentials'});
-        console.log('BBBB')
 
         const payload: PayloadInterface = {
             id: user.id,
@@ -38,6 +35,5 @@ export class AuthService {
         const token = await this.jwtService.sign(payload);
         return {token};
     }
-
     
 }

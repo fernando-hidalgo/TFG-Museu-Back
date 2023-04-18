@@ -6,6 +6,7 @@ import { UserEntity } from './user.entity';
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoleType } from 'src/role/role.enum';
+import { compare } from 'bcryptjs';
 
 @Injectable()
 export class UserService {
@@ -23,20 +24,28 @@ export class UserService {
         return usuarios;
     }
 
-    async getUserByFields(nickname, email): Promise<Boolean> {
-        let isAvailable: boolean
-        const usuarios = await this.UserRepository
+    async getUserByFields(nickname: string, email: string): Promise<Boolean> {
+        const usuario = await this.UserRepository
             .createQueryBuilder("user")
             .select(["user.nickname"])
             .where("user.nickname = :nickname", { nickname })
             .orWhere("user.email = :email", { email })
-            .getMany();
-        if (usuarios.length != 0) {
-            isAvailable = false;
+            .getOne();
+        return !usuario;
+    }
+
+    async getAccountExists(nick_or_mail: string, password: string): Promise<Boolean>{
+        const usuario = await this.UserRepository
+        .createQueryBuilder("user")
+        .where("user.nickname = :nick_or_mail OR user.email = :nick_or_mail", { nick_or_mail })
+        .getOne();
+
+        if (usuario) {
+            const passwordOK = await compare(password, usuario.password);
+            return passwordOK;
         } else {
-            isAvailable = true
+            return false;
         }
-        return isAvailable;
     }
 
     async createAdminUser(dto: CreateUserDTO): Promise<any> {
