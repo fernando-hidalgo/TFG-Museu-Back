@@ -16,9 +16,6 @@ export class UserEntity {
     @Column({type: 'varchar', nullable: false, unique: true})
     email: string;
 
-    /*@Column({type: 'varchar', nullable: false, unique: true})     //TODO: Guardar profilePic en BD
-    profilePic: string;*/
-
     @Column({type: 'varchar', nullable: false})
     password: string;
 

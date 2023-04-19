@@ -19,29 +19,25 @@ export class UserService {
     ) {}
 
     async getAll(): Promise<UserEntity[]> {
-        const usuarios = await this.UserRepository.find();
-        if(!usuarios.length) throw new NotFoundException({message: 'No users found'});
-        return usuarios;
+        const users = await this.UserRepository.find();
+        if(!users.length) throw new NotFoundException({message: 'No users found'});
+        return users;
     }
 
     async getUserByFields(nickname: string, email: string): Promise<Boolean> {
-        const usuario = await this.UserRepository
-            .createQueryBuilder("user")
-            .select(["user.nickname"])
-            .where("user.nickname = :nickname", { nickname })
-            .orWhere("user.email = :email", { email })
-            .getOne();
-        return !usuario;
+        return !(
+            await this.UserRepository.findOne({
+                where: [{nickname}, {email}]
+            })
+        );
     }
 
     async getAccountExists(nick_or_mail: string, password: string): Promise<Boolean>{
-        const usuario = await this.UserRepository
-        .createQueryBuilder("user")
-        .where("user.nickname = :nick_or_mail OR user.email = :nick_or_mail", { nick_or_mail })
-        .getOne();
-
-        if (usuario) {
-            const passwordOK = await compare(password, usuario.password);
+        const user = await this.UserRepository.findOne({
+            where: [{nickname: nick_or_mail}, {email: nick_or_mail}]
+        });
+        if (user) {
+            const passwordOK = await compare(password, user.password);
             return passwordOK;
         } else {
             return false;

@@ -52,13 +52,7 @@ export class RatingController {
     async create(@Body() dto: CreateRatingDTO) {
         return await this.RatingService.create(dto);
     }
-
-    @UsePipes(new ValidationPipe({whitelist: true}))
-    @Put(':id')
-    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateRatingDTO) {
-        return await this.RatingService.update(id, dto);
-    }
-
+    
     @Delete(':id')
     async delete(@Param('id', ParseIntPipe) id: number){
         return await this.RatingService.delete(id)

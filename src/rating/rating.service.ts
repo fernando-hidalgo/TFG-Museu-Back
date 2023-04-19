@@ -89,13 +89,6 @@ export class RatingService {
         await this.RatingRepository.delete(rating as any);
         return rating
     }
-    
-    async update(id: number, dto: UpdateRatingDTO): Promise<RatingEntity> {
-        const rating = await this.findById(id);
-        if (!rating) throw new NotFoundException({message: 'No rating found'});
-        await this.RatingRepository.save(Object.assign(rating, dto));
-        return rating
-    }
 
     /*HELPERS*/
 
