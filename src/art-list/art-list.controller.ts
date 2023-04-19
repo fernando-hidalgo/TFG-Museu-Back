@@ -15,10 +15,15 @@ export class ArtListController {
     }
 
     @Get(':artlistId')
-    async getOne(
+    async getOne(@Param('artlistId', ParseIntPipe) artlistId: number) {
+        return await this.ArtListService.findById(artlistId);
+    }
+
+    @Get('details/:artlistId')
+    async getOneDetailed(
         @Param('artlistId', ParseIntPipe) artlistId: number,
         @Query('currentUserId') currentUserId: number) {
-        return await this.ArtListService.findById(artlistId, currentUserId);
+        return await this.ArtListService.findByIdDetailed(artlistId, currentUserId);
     }
 
     @Get('filtered/:artlistId')

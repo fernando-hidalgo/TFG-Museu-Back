@@ -32,7 +32,16 @@ export class ArtListService {
         return res;
     }
 
-    async findById(artlistId: number, currentUserId: number): Promise<ArtAndFilters> {
+    async findById(id: number): Promise<Boolean> {
+        return !!(
+            await this.ArtListRepository
+            .createQueryBuilder('art_lists')
+            .where("art_lists.id = :id", { id })
+            .getOne()
+        );
+    }
+
+    async findByIdDetailed(artlistId: number, currentUserId: number): Promise<ArtAndFilters> {
         let list = await this.ArtListRepository
         .createQueryBuilder('art_lists')
         .leftJoinAndSelect("art_lists.artworks", "artwork")
