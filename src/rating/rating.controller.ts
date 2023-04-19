@@ -44,10 +44,9 @@ export class RatingController {
         return await this.RatingService.findFilteredArtworkRatedByUser(nameFilter, artistFilter, styleFilter, museumFilter, profileId, currentUserId);
     }
 
-    //TODO: Descomentar cuando ya funcione el LOGIN
-    //@RoleDecorator(RoleType.USER)
-    //@UseGuards(JwtAuthGuard, RolesGuard)
-    //@UsePipes(new ValidationPipe({whitelist: true}))
+    @RoleDecorator(RoleType.USER)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     async create(@Body() dto: CreateRatingDTO) {
         return await this.RatingService.create(dto);

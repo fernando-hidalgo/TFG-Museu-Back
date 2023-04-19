@@ -8,6 +8,8 @@ import { UpdateRatingDTO } from './dto/update-rating.dto';
 import { RatingEntity } from './rating.entity';
 import { RatingRepository } from './rating.repository';
 import { ArtworkRepository } from '../artwork/artwork.repository';
+import { UserEntity } from 'src/user/user.entity';
+import { UserRepository } from 'src/user/user.repository';
 
 @Injectable()
 export class RatingService {
@@ -16,7 +18,10 @@ export class RatingService {
         private RatingRepository: RatingRepository,
 
         @InjectRepository(ArtworkEntity)
-        private ArtworkRepository: ArtworkRepository
+        private ArtworkRepository: ArtworkRepository,
+
+        @InjectRepository(UserEntity)
+        private UserRepository: UserRepository,
     ) {}
 
     async getAll(): Promise<RatingEntity[]> {
@@ -72,15 +77,27 @@ export class RatingService {
     }
 
     async create(dto: CreateRatingDTO): Promise<RatingEntity> {
-        const rating = this.RatingRepository.create(dto);
+        const [user, artwork] = await Promise.all([
+            this.UserRepository.findOne({ select: ['id', 'nickname'], where: { id: dto.user_id } }),
+            this.ArtworkRepository.findOne({ select: ['id'], where: { id: dto.artwork_id } })
+        ]);
+
+        if (!user) throw new NotFoundException({ message: 'User not found' });
+        if (!artwork) throw new NotFoundException({ message: 'Artwork not found' });
+
         const alreadyRated = await this.RatingRepository
             .createQueryBuilder('ratings')
-            .where("artwork_id = :artworkId", { artworkId: rating.artwork })
-            .andWhere("user_id = :userId", { userId: rating.user })
-            .getMany()
-        if(alreadyRated.length) throw new NotFoundException({message: 'Current user already rated this artwork'});
+            .where("artwork_id = :artworkId", { artworkId: dto.artwork_id })
+            .andWhere("user_id = :userId", { userId: dto.user_id })
+            .getMany();
+        if (alreadyRated) throw new NotFoundException({ message: 'Current user already rated this artwork' });
+
+        const rating = this.RatingRepository.create(dto);
+        rating.user = user;
+        rating.artwork = artwork;
+
         await this.RatingRepository.save(rating);
-        return rating
+        return rating;
     }
 
     async delete(id: number): Promise<RatingEntity> {
