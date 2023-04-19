@@ -36,12 +36,7 @@ export class UserService {
         const user = await this.UserRepository.findOne({
             where: [{nickname: nick_or_mail}, {email: nick_or_mail}]
         });
-        if (user) {
-            const passwordOK = await compare(password, user.password);
-            return passwordOK;
-        } else {
-            return false;
-        }
+        return user && await compare(password, user.password)
     }
 
     async createAdminUser(dto: CreateUserDTO): Promise<any> {
