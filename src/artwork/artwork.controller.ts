@@ -27,6 +27,7 @@ export class ArtworkController {
         return await this.ArtworkService.findById(id);
     }
 
+    //TODO: Proteger despues de implementar Scrapping
     @Post()
     async create(@Body() dto: ArtworkDTO) {
         return await this.ArtworkService.create(dto);

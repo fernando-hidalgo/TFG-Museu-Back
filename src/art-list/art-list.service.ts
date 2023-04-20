@@ -261,4 +261,16 @@ export class ArtListService {
           });
         });
     }
+
+    //To use in GUARDS
+    async getListOwner(id): Promise<number>{
+        let artlist = await this.ArtListRepository
+        .createQueryBuilder('art_lists')
+        .innerJoin('art_lists.user', 'user')
+        .addSelect('user.id')
+        .where("art_lists.id = :id", { id })
+        .getOne()
+
+        return artlist.user.id
+    }
 }

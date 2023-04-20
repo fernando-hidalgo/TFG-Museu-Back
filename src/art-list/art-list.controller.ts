@@ -1,9 +1,14 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
-import { Query, UploadedFile, UseInterceptors, UsePipes } from '@nestjs/common/decorators';
+import { Query, UploadedFile, UseGuards, UseInterceptors, UsePipes } from '@nestjs/common/decorators';
 import { ValidationPipe } from '@nestjs/common/pipes';
 import { ArtListService } from './art-list.service';
 import { CreateArtListDTO } from './dto/create-art-list.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { RoleDecorator } from 'src/custom-decorators';
+import { RoleType } from 'src/role/role.enum';
+import { JwtAuthGuard } from 'src/guards/jwt.guard';
+import { RolesGuard } from 'src/guards/role.guard';
+import { ArtlistGuard } from 'src/guards/artlist.guard';
 
 @Controller('art-list')
 export class ArtListController {
@@ -42,6 +47,8 @@ export class ArtListController {
         return await this.ArtListService.findByUserId(userId);
     }
 
+    @RoleDecorator(RoleType.USER)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @Put('/edit/:id')
     async findListToEdit(
         @Param('id', ParseIntPipe) artlistId: number,
@@ -49,23 +56,30 @@ export class ArtListController {
         return await this.ArtListService.findListToEdit(artlistId, body);
     }
 
+    @RoleDecorator(RoleType.USER)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     async create(@Body() dto: CreateArtListDTO) {
         return await this.ArtListService.create(dto);
     }
 
+    @RoleDecorator(RoleType.USER)
+    @UseGuards(JwtAuthGuard, RolesGuard, ArtlistGuard)
     @Delete(':id')
     async delete(@Param('id', ParseIntPipe) id: number){
         return await this.ArtListService.delete(id)
     }
 
+    @RoleDecorator(RoleType.USER)
+    @UseGuards(JwtAuthGuard, RolesGuard, ArtlistGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Put(':id')
     async update(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
         return await this.ArtListService.update(id, dto);
     }
 
+    //S3 Arlist Images
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post('cover/:id')
     @UseInterceptors(FileInterceptor('file'))

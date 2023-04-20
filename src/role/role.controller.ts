@@ -12,6 +12,7 @@ export class RoleController {
         return this.roleService.getAll();
     }
 
+    //TODO: Proteger despues de implementar Vista Admin
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     create(@Body() dto: CreateRoleDTO) {

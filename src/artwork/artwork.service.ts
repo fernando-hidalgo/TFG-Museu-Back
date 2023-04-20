@@ -22,7 +22,7 @@ export class ArtworkService {
 
     async findById(id: number): Promise<ArtworkEntity> {
         const res = await this.ArtworkRepository.findOne({ where: { id } });
-        if (!res) throw new NotFoundException({ message: 'No artwork found' });
+        //if (!res) throw new NotFoundException({ message: 'No artwork found' });
         return res;
     }
 

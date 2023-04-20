@@ -6,6 +6,7 @@ import { RoleType } from 'src/role/role.enum';
 import { CreateRatingDTO} from './dto/create-rating.dto';
 import { UpdateRatingDTO } from './dto/update-rating.dto';
 import { RatingService } from './rating.service';
+import { RatingGuard } from 'src/guards/rating.guard';
 
 @Controller('rating')
 export class RatingController {
@@ -52,12 +53,16 @@ export class RatingController {
         return await this.RatingService.create(dto);
     }
 
+    @RoleDecorator(RoleType.USER)
+    @UseGuards(JwtAuthGuard, RolesGuard, RatingGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Put(':id')
     async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateRatingDTO) {
         return await this.RatingService.update(id, dto);
     }
     
+    @RoleDecorator(RoleType.USER)
+    @UseGuards(JwtAuthGuard, RolesGuard, RatingGuard)
     @Delete(':id')
     async delete(@Param('id', ParseIntPipe) id: number){
         return await this.RatingService.delete(id)

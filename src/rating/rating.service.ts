@@ -89,7 +89,7 @@ export class RatingService {
             .createQueryBuilder('ratings')
             .where("artwork_id = :artworkId", { artworkId: dto.artwork_id })
             .andWhere("user_id = :userId", { userId: dto.user_id })
-            .getMany();
+            .getOne();
         if (alreadyRated) throw new NotFoundException({ message: 'Current user already rated this artwork' });
 
         const rating = this.RatingRepository.create(dto);
@@ -108,6 +108,7 @@ export class RatingService {
     }
 
     async delete(id: number): Promise<RatingEntity> {
+        console.log(id)
         const rating = await this.findById(id);
         if(!rating) throw new NotFoundException({message: 'No rating found'});
         await this.RatingRepository.delete(rating as any);
