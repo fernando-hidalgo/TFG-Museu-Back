@@ -10,8 +10,8 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = +configService.get<number>(SERVER_PORT) || 3000;
   config.update({
-    accessKeyId: 'AKIA3XSTFV3WGPEP3RGM',
-    secretAccessKey: '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',
+    accessKeyId: '',
+    secretAccessKey: '',
     region: 'eu-north-1',
   });
   await app.listen(port);
