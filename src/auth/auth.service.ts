@@ -7,6 +7,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoleType } from 'src/role/role.enum';
 import { AuthRepository } from './auth.repository';
+import { TokenDTO } from './dto/token.dto';
 
 @Injectable()
 export class AuthService {
@@ -32,6 +33,18 @@ export class AuthService {
             roles: user.roles.map(rol => rol.type as RoleType)
         }
         
+        const token = await this.jwtService.sign(payload);
+        return {token};
+    }
+
+    async refresh(dto: TokenDTO): Promise<any> {
+        const user = await this.jwtService.decode(dto.token);
+        const payload: PayloadInterface = {
+            id: user[`id`],
+            nickname: user[`nickname`],
+            email: user[`email`],
+            roles: user[`roles`]
+        }
         const token = await this.jwtService.sign(payload);
         return {token};
     }
