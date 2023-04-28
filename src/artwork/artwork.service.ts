@@ -20,6 +20,7 @@ export class ArtworkService {
         return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
     }
 
+    //TODO: Eliminar si no se usa aqui, estará en Scrapping Service
     async findById(id: number): Promise<ArtworkEntity> {
         const res = await this.ArtworkRepository.findOne({ where: { id } });
         //if (!res) throw new NotFoundException({ message: 'No artwork found' });
@@ -37,26 +38,6 @@ export class ArtworkService {
         artworks = await this.seen(userId, artworks)
         if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
         return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
-    }
-
-    async create(dto: ArtworkDTO): Promise<ArtworkEntity> {
-        const artwork = this.ArtworkRepository.create(dto);
-        await this.ArtworkRepository.save(artwork);
-        return artwork
-    }
-
-    async delete(id: number): Promise<ArtworkEntity> {
-        const artwork = await this.findById(id);
-        if (!artwork) throw new NotFoundException({ message: 'No artwork found' });
-        await this.ArtworkRepository.delete(artwork as any);
-        return artwork
-    }
-
-    async update(id: number, dto: ArtworkDTO): Promise<ArtworkEntity> {
-        const artwork = await this.findById(id);
-        if (!artwork) throw new NotFoundException({ message: 'No artwork found' });
-        await this.ArtworkRepository.save(Object.assign(artwork, dto));
-        return artwork
     }
 
     /*HELPERS*/

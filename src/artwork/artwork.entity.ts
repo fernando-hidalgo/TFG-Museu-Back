@@ -21,7 +21,7 @@ export class ArtworkEntity {
     @Column({type: 'varchar'})
     date: string;
 
-    @Column({type: 'varchar'})
+    @Column({type: 'longtext'})
     description: string;
 
     @Column({type: 'varchar', nullable: false})

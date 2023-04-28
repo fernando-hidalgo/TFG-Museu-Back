@@ -11,6 +11,7 @@ import { UserModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
 import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
+import { ScrappingModule } from './scrapping/scrapping.module';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { AuthModule } from './auth/auth.module';
     ArtListModule,
     UserModule,
     RoleModule,
-    AuthModule
+    AuthModule,
+    ScrappingModule
   ],
   controllers: [AppController],
   providers: [AppService],
