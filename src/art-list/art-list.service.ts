@@ -75,15 +75,13 @@ export class ArtListService {
         const artworksToSuggest: ArtworkEntity[] = await this.ArtworkRepository.findBy({
             name: Not(In(namesInList))
         });
-        const artworksIds = artworksToSuggest.map(artwork => artwork.id);
-        const filters = this.artworkFilters(artworksToSuggest);
 
         return {
             name: list.name,
             description: list.text,
             artworks: artworksInList,
-            nameFilter: filters['nameFilter'],
-            artworksIds,
+            nameFilter: this.artworkFilters(artworksToSuggest)['nameFilter'],
+            editListOptions: artworksToSuggest.map(artwork => ({id: artwork.id, name: artwork.name}))
         };
     }
 
