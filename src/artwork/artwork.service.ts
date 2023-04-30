@@ -16,7 +16,7 @@ export class ArtworkService {
     async getAll(userId: number): Promise<ArtAndFilters> {
         let artworks = await this.ArtworkRepository.find();
         artworks = await this.seen(userId, artworks)
-        if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
+        //if (!artworks.length) throw new NotFoundException({ message: 'No artworks found' });
         return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
     }
 
