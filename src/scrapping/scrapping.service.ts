@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { ArtworkEntity } from 'src/artwork/artwork.entity';
 import { ArtworkRepository } from '../artwork/artwork.repository';
 import { ArtworkDTO } from 'src/artwork/dto/artwork.dto';
+import puppeteer from 'puppeteer';
 var objectHash = require('object-hash');
 
 @Injectable()
@@ -13,8 +14,87 @@ export class ScrappingService {
     ) {}
 
     //Método A: Scrapping Web
-    async scrap(){
+    async getTyssenMuseum() { //
+        const browser = await puppeteer.launch({ headless: true });
+        const page = await browser.newPage();
 
+        //La estructura de la URL espera el número de página
+        const museumURL = "https://www.museothyssen.org/buscador/artista/14476/artista/14572/artista/14728/artista/14813/coleccion/41/tipo/obra?page=";
+        const artCMS = "https://www.museothyssen.org/sites/default/files/styles/full_resolution/public/imagen/obras/"
+        let pageURLNumber = 0;
+        let detailsURLs = [];
+
+        //Se navega por cada página del catálogo, obteniendo la URL a los Detalles de la obra
+        while (true) {
+            const url = `${museumURL}${pageURLNumber}`;
+            await page.goto(url);
+        
+            const catalogGrid = await page.$$('.row .row--abajo > div');
+        
+            if (!catalogGrid.length) break;
+        
+            for (const artCard of catalogGrid) {
+                const detailsLink = await artCard.evaluate(el => el.querySelector("div > a")?.getAttribute('href'));
+                if (detailsLink) detailsURLs.push(detailsLink);
+            }
+        
+            pageURLNumber++;
+        }
+
+        //Se accede a los detalles de cada obra y se obtienen sus datos
+        for (let i = 0; i < detailsURLs.length; i++) {
+            let detailsURL = detailsURLs[i]
+
+            await page.goto(detailsURL)
+
+            const [artist, infoBlock] = await Promise.all([
+                page.$eval('#rs_artwork_artist', el => el.textContent.trim()),
+                page.$('.is-hidden.js-zoom-map-info')
+            ])
+
+            let description
+            try {
+                description = await page.$eval('#rs_artwork_description > div > div > p', el => el.innerHTML)
+            } catch (error) {
+                description = await page.$eval('#rs_artwork_description > div > div', el => el.innerHTML)
+            }
+
+            const [name, date, subInfoBlock] = await Promise.all([
+                infoBlock.evaluate(el => el.querySelector("div > h1.h3")?.textContent.trim()),
+                infoBlock.evaluate(el => el.querySelector("div > div > div.h6")?.textContent.trim().split(' - ')[0]),
+                infoBlock.$$("div > div > div.u-grid.u-font-size-sm > div")
+            ])
+
+            const [style, inventoryId, room] = await Promise.all([
+                subInfoBlock[0].evaluate(el => el.textContent.trim().split(/[ ,]+/)[0]),
+                subInfoBlock[2].evaluate(el => el.textContent.trim().match(/\((.*?)\)/)[1]),
+                subInfoBlock[3].evaluate(el => el.textContent.trim())
+            ])
+
+            const inDisplay = room.includes('Not on display') || room.includes('No Expuesta') ? false : true;
+            const nameId = detailsURL.split('/').pop();
+            const picLink = `${artCMS}${inventoryId}_${nameId}.jpg`
+
+            const newArtworkDTO = {
+                picLink: picLink,
+                artist: artist,
+                name: name,
+                style: style,
+                date: date,
+                description: description,
+                museum: "Museo Thyssen",
+                colection: "Colección Permanente",
+                display: inDisplay,
+                room: room,
+                averageRating: 0
+            }
+
+            //Se guardan las obras
+            this.saveScrap(newArtworkDTO, name, artist, date)
+        }
+
+        await browser.close();
+        return "Museo Tyssen guardado";
     }
 
 
@@ -54,29 +134,7 @@ export class ScrappingService {
                 averageRating: 0
             }
 
-            //Comprobar si existe ya esa obra (Nombre+Autor+Año)
-            const alreadyExists = await this.ArtworkRepository.findOne({
-                where: {
-                    name: json.title,
-                    artist: artist,
-                    date: date
-                }
-            })
-
-            if (alreadyExists) {
-                //Si ya existe, se comprueba si existen cambios. De ser así, se updatea
-                const artworkToUpdate = await this.findById(alreadyExists.id);
-                newArtworkDTO['id'] = alreadyExists.id
-
-                if (objectHash({ ...artworkToUpdate }) != objectHash(newArtworkDTO)) {
-                    await this.ArtworkRepository.save(Object.assign(artworkToUpdate, newArtworkDTO));
-                }
-
-            } else {
-                //Si no existe, se crea uno nuevo
-                const newArtwork = this.ArtworkRepository.create(newArtworkDTO)
-                await this.ArtworkRepository.save(newArtwork);
-            }
+            this.saveScrap(newArtworkDTO, json.title, artist, date)
         }
 
         return "Museo Picasso guardado"
@@ -108,5 +166,30 @@ export class ScrappingService {
         if (!artwork) throw new NotFoundException({ message: 'No artwork found' });
         await this.ArtworkRepository.save(Object.assign(artwork, dto));
         return artwork
+    }
+
+    async saveScrap(newArtworkDTO, name, artist, date){
+        const alreadyExists = await this.ArtworkRepository.findOne({
+            where: {
+                name: name,
+                artist: artist,
+                date: date
+            }
+        })
+
+        if (alreadyExists) {
+            //Si ya existe, se comprueba si existen cambios. De ser así, se updatea
+            const artworkToUpdate = await this.findById(alreadyExists.id);
+            newArtworkDTO['id'] = alreadyExists.id
+
+            if (objectHash({ ...artworkToUpdate }) != objectHash(newArtworkDTO)) {
+                await this.ArtworkRepository.save(Object.assign(artworkToUpdate, newArtworkDTO));
+            }
+
+        } else {
+            //Si no existe, se crea uno nuevo
+            const newArtwork = this.ArtworkRepository.create(newArtworkDTO)
+            await this.ArtworkRepository.save(newArtwork);
+        }
     }
 }

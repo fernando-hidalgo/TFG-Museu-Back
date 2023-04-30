@@ -5,13 +5,13 @@ import { ScrappingService } from './scrapping.service';
 export class ScrappingController {
     constructor(private readonly ScrappingService: ScrappingService) {}
 
-    @Get()
-    async scrap(){
-        return this.ScrappingService.scrap();
+    @Get('/tyssen')
+    async scrapTyssenMuseum(){
+        return this.ScrappingService.getTyssenMuseum();
     }
 
     @Get('/picasso')
-    async getPicassoMuseum(){
+    async scrapPicassoMuseum(){
         return this.ScrappingService.getPicassoMuseum();
     }
 }
