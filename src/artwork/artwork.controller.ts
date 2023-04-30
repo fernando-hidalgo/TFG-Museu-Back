@@ -26,4 +26,23 @@ export class ArtworkController {
     async getOne(@Param('id', ParseIntPipe) id: number) {
         return await this.ArtworkService.findById(id);
     }
+
+    
+    //TODO: Proteger despues de implementar Scrapping
+    @Post()
+    async create(@Body() dto: ArtworkDTO) {
+        return await this.ArtworkService.create(dto);
+    }
+
+    @UsePipes(new ValidationPipe({whitelist: true}))
+    @Put(':id')
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: ArtworkDTO) {
+        return await this.ArtworkService.update(id, dto);
+    }
+
+    @Delete(':id')
+    async delete(@Param('id', ParseIntPipe) id: number){
+        return await this.ArtworkService.delete(id)
+    }
+
 }

@@ -40,6 +40,28 @@ export class ArtworkService {
         return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
     }
 
+    async create(dto: ArtworkDTO): Promise<ArtworkEntity> {
+        const artwork = this.ArtworkRepository.create(dto);
+        await this.ArtworkRepository.save(artwork);
+        return artwork
+    }
+
+    async delete(id: number): Promise<ArtworkEntity> {
+        const artwork = await this.findById(id);
+        if (!artwork) throw new NotFoundException({ message: 'No artwork found' });
+        await this.ArtworkRepository.delete(artwork as any);
+        return artwork
+    }
+
+    async update(id: number, dto: ArtworkDTO): Promise<ArtworkEntity> {
+        const artwork = await this.findById(id);
+        if (!artwork) throw new NotFoundException({ message: 'No artwork found' });
+        await this.ArtworkRepository.save(Object.assign(artwork, dto));
+        return artwork
+    }
+
+
+
     /*HELPERS*/
 
     artworkFilters(artworks: ArtworkEntity[]){

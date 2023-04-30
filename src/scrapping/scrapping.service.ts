@@ -19,7 +19,7 @@ export class ScrappingService {
         const page = await browser.newPage();
 
         //La estructura de la URL espera el número de página
-        const museumURL = "https://www.museothyssen.org/buscador/artista/14476/artista/14572/artista/14728/artista/14813/coleccion/41/tipo/obra?page=";
+        const museumURL = "https://www.museothyssen.org/buscador/artista/14572/artista/14619/artista/14728/artista/14813/coleccion/41/tipo/obra?page=";
         const artCMS = "https://www.museothyssen.org/sites/default/files/styles/full_resolution/public/imagen/obras/"
         let pageURLNumber = 0;
         let detailsURLs = [];
@@ -85,8 +85,7 @@ export class ScrappingService {
                 museum: "Museo Thyssen",
                 colection: "Colección Permanente",
                 display: inDisplay,
-                room: room,
-                averageRating: 0
+                room: room
             }
 
             //Se guardan las obras
@@ -130,8 +129,7 @@ export class ScrappingService {
                 museum: "Museo Picasso Málaga",
                 colection: exhibition?.title.trimStart() || noData,
                 display: inDisplay,
-                room: "",
-                averageRating: 0
+                room: noData
             }
 
             this.saveScrap(newArtworkDTO, json.title, artist, date)
@@ -181,6 +179,7 @@ export class ScrappingService {
             //Si ya existe, se comprueba si existen cambios. De ser así, se updatea
             const artworkToUpdate = await this.findById(alreadyExists.id);
             newArtworkDTO['id'] = alreadyExists.id
+            newArtworkDTO['averageRating'] = alreadyExists.averageRating
 
             if (objectHash({ ...artworkToUpdate }) != objectHash(newArtworkDTO)) {
                 await this.ArtworkRepository.save(Object.assign(artworkToUpdate, newArtworkDTO));
@@ -188,6 +187,7 @@ export class ScrappingService {
 
         } else {
             //Si no existe, se crea uno nuevo
+            newArtworkDTO['averageRating'] = 0
             const newArtwork = this.ArtworkRepository.create(newArtworkDTO)
             await this.ArtworkRepository.save(newArtwork);
         }
