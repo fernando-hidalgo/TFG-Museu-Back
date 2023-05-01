@@ -113,7 +113,7 @@ export class ScrappingService {
         //Tercera Parte: Se guardan las obras
         await Promise.all(ArtworksToSave.map(art => this.saveScrap(art)));
 
-        return "Museo Tyssen guardado";  
+        return "Museo Tyssen guardado";
     }
 
 
