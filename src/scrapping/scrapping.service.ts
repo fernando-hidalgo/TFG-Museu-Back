@@ -4,6 +4,7 @@ import { ArtworkEntity } from 'src/artwork/artwork.entity';
 import { ArtworkRepository } from '../artwork/artwork.repository';
 import { ArtworkDTO } from 'src/artwork/dto/artwork.dto';
 import puppeteer from 'puppeteer';
+import { Cluster } from 'puppeteer-cluster';
 var objectHash = require('object-hash');
 
 @Injectable()
@@ -14,7 +15,8 @@ export class ScrappingService {
     ) {}
 
     //Método A: Scrapping Web
-    async getTyssenMuseum() { //
+    async getThyssenMuseum() {
+        //Primera Parte: Obtener las URLs de Detalles de cada obra
         const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
 
@@ -41,18 +43,27 @@ export class ScrappingService {
             pageURLNumber++;
         }
 
-        //Se accede a los detalles de cada obra y se obtienen sus datos
-        for (let i = 0; i < detailsURLs.length; i++) {
-            let detailsURL = detailsURLs[i]
+        //Segunda Parte: Mediante un cluster, acceder en paralelo a cada Detalle y recopilar datos
+        const cluster = await Cluster.launch({
+            concurrency: Cluster.CONCURRENCY_PAGE,
+            maxConcurrency: detailsURLs?.length / 2, //La mitad del total de obras
+        });
 
-            await page.goto(detailsURL)
+        cluster.on("taskerror", (err, data) => {
+            console.log(`Error crawling ${data}: ${err.message}`);
+        });
+
+        let ArtworksToSave = []
+        //Se accede a los detalles de cada obra y se obtienen sus datos
+        await cluster.task(async ({ page, data: url }) => {
+            await page.goto(url)
 
             const [artist, infoBlock] = await Promise.all([
                 page.$eval('#rs_artwork_artist', el => el.textContent.trim()),
                 page.$('.is-hidden.js-zoom-map-info')
             ])
 
-            let description
+            let description: string;
             try {
                 description = await page.$eval('#rs_artwork_description > div > div > p', el => el.innerHTML)
             } catch (error) {
@@ -72,7 +83,7 @@ export class ScrappingService {
             ])
 
             const inDisplay = room.includes('Not on display') || room.includes('No Expuesta') ? false : true;
-            const nameId = detailsURL.split('/').pop();
+            const nameId = url.split('/').pop();
             const picLink = `${artCMS}${inventoryId}_${nameId}.jpg`
 
             const newArtworkDTO = {
@@ -88,12 +99,21 @@ export class ScrappingService {
                 room: room
             }
 
-            //Se guardan las obras
-            this.saveScrap(newArtworkDTO, name, artist, date)
+            ArtworksToSave.push(newArtworkDTO)
+        });
+
+        for (const url of detailsURLs) {
+            await cluster.queue(url);
         }
 
+        await cluster.idle();
+        await cluster.close();
         await browser.close();
-        return "Museo Tyssen guardado";
+
+        //Tercera Parte: Se guardan las obras
+        await Promise.all(ArtworksToSave.map(art => this.saveScrap(art)));
+
+        return "Museo Tyssen guardado";  
     }
 
 
@@ -104,6 +124,7 @@ export class ScrappingService {
         const response = await fetch(`${ApiURL}/works`, { method: "Get" });
         const j = await response.json();
 
+        let ArtworksToSave = []
         const keys = Object.keys(j);
         for (const key of keys) {
             const json = j[key];
@@ -132,8 +153,10 @@ export class ScrappingService {
                 room: noData
             }
 
-            this.saveScrap(newArtworkDTO, json.title, artist, date)
+            ArtworksToSave.push(newArtworkDTO)
         }
+
+        await Promise.all(ArtworksToSave.map(art => this.saveScrap(art)));
 
         return "Museo Picasso guardado"
     }
@@ -166,12 +189,12 @@ export class ScrappingService {
         return artwork
     }
 
-    async saveScrap(newArtworkDTO, name, artist, date){
+    async saveScrap(newArtworkDTO){
         const alreadyExists = await this.ArtworkRepository.findOne({
             where: {
-                name: name,
-                artist: artist,
-                date: date
+                name: newArtworkDTO.name,
+                artist: newArtworkDTO.artist,
+                date: newArtworkDTO.date
             }
         })
 
