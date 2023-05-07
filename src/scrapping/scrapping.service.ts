@@ -94,7 +94,7 @@ export class ScrappingService {
                 date: date,
                 description: description,
                 museum: "Museo Thyssen",
-                colection: "Colección Permanente",
+                colection: "Permanente",
                 display: inDisplay,
                 room: room
             }
