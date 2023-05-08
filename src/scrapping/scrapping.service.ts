@@ -132,7 +132,7 @@ export class ScrappingService {
             //Se crea un DTO con los campos de Artwork en BD
             const date = json.date_of_completion.split('-')[0]
             const artist = "Pablo Picasso"
-            const noData = "Sin Datos"
+            const noData = "-"
             const exhibition = json.showcased_at_exhibition[0]
             
             const showcaseStartDate = new Date(exhibition?.start_date || 0)

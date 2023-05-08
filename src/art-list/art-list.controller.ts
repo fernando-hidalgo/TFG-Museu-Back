@@ -57,6 +57,14 @@ export class ArtListController {
     }
 
     @RoleDecorator(RoleType.USER)
+    @UseGuards(JwtAuthGuard, RolesGuard, ArtlistGuard)
+    @UsePipes(new ValidationPipe({whitelist: true}))
+    @Put('add-list-modal/:id')
+    async addToListModal(@Param('id', ParseIntPipe) artworkId: number, @Body() arlistsIds: any) {
+        return await this.ArtListService.addToListModal(artworkId, arlistsIds);
+    }
+
+    @RoleDecorator(RoleType.USER)
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
