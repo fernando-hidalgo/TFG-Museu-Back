@@ -93,7 +93,7 @@ export class ScrappingService {
                 style: style,
                 date: date,
                 description: description,
-                museum: "Museo Thyssen",
+                museum: "Thyssen-Bornemisza",
                 colection: "Permanente",
                 display: inDisplay,
                 room: room
@@ -147,7 +147,7 @@ export class ScrappingService {
                 style: json.technique.split(/[ ,]+/)[0],
                 date: date,
                 description: json.description === ' ' || json.description === '.' ? noData : json.description.replace(/\n/g, "<br>"),
-                museum: "Museo Picasso Málaga",
+                museum: "Picasso Málaga",
                 colection: exhibition?.title.trimStart() || noData,
                 display: inDisplay,
                 room: noData
