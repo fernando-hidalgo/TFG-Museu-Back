@@ -61,7 +61,6 @@ export class RatingService {
     }
 
     async findFilteredArtworkRatedByUser(nameFilter: string, artistFilter: string, styleFilter: string, museumFilter: string, profileId: number, currentUserId: number): Promise<ArtAndFilters>{
-        console.log(profileId, currentUserId)
         const options = {
             name: nameFilter,
             artist: artistFilter,
@@ -108,7 +107,6 @@ export class RatingService {
     }
 
     async delete(id: number): Promise<RatingEntity> {
-        console.log(id)
         const rating = await this.findById(id);
         if(!rating) throw new NotFoundException({message: 'No rating found'});
         await this.RatingRepository.delete(rating as any);

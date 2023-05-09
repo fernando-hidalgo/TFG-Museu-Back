@@ -24,6 +24,11 @@ export class UserService {
         return users;
     }
 
+    async findNicknameById(id: number): Promise<any> {
+        let user = await this.UserRepository.findOne({where: [{id}]})
+        return {nickname: user.nickname}
+    }
+
     async findById(id: number): Promise<Boolean> {
         return !!(
             await this.UserRepository.findOne({

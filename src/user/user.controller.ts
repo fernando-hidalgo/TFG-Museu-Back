@@ -26,6 +26,11 @@ export class UserController {
         return await this.UserService.getAccountExists(nick_or_mail, password);
     }
 
+    @Get('nickname/:id')
+    getNickname(@Param('id', ParseIntPipe) id: number) {
+        return this.UserService.findNicknameById(id);
+    }
+
     @Get(':id')
     getOne(@Param('id', ParseIntPipe) id: number) {
         return this.UserService.findById(id);
