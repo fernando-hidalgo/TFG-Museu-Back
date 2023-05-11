@@ -41,19 +41,22 @@ export class ArtListService {
         );
     }
 
-    async findByIdDetailed(artlistId: number, currentUserId: number): Promise<ArtAndFilters> {
+    async findByIdDetailed(artlistId: number, currentUserId: number): Promise<any> {
         let list = await this.ArtListRepository
         .createQueryBuilder('art_lists')
         .leftJoinAndSelect("art_lists.artworks", "artwork")
         .where("art_lists.id = :id", { id: artlistId })
         .getOne();
+
+        const listName = list.name
+        const listDescription = list.text
         
         if(!list) throw new NotFoundException({message: 'No list found'});
         let artworks = list.artworks
         artworks = await this.seen(currentUserId, artworks)
         artworks = await this.addGeo(artworks)
         //TODO: Debe tambien devolver el nombre y descripcción de la lista
-        return { artworks, ...this.artworkFilters(list.artworks) } as ArtAndFilters ;
+        return { artworks, ...this.artworkFilters(list.artworks), listName, listDescription } ;
     }
 
     async findListToEdit(artlistId: number, body?: any) {
@@ -222,20 +225,38 @@ export class ArtListService {
         return artworks
     }
 
-    async addGeo(artworks: ArtworkEntity[]) {
-        const geoPromises = artworks.map(artwork =>
-          this.geocoder.geocode(artwork.museum)
-        );
-        const geocodes = await Promise.all(geoPromises);
-        return artworks.map((artwork, i) => {
-          const [geocode] = geocodes[i];
-          return {
-            ...artwork,
-            latitude: geocode?.latitude,
-            longitude: geocode?.longitude,
-          };
+    async addGeo(artworks: ArtworkEntity[]): Promise<ArtworkEntity[]> {
+        const uniqueMuseums = [...new Set(artworks.map((artwork) => artwork.museum))];
+
+        const coordinates = await Promise.all(uniqueMuseums.map((museum) => this.getCoordinates(museum)));
+
+        const artworksWithCoordinates = artworks.map((artwork) => {
+            const matchingCoordinate = coordinates.find((coordinate) => coordinate?.museum === artwork.museum);
+            return {
+                ...artwork,
+                latitude: matchingCoordinate?.latitude || artwork.latitude,
+                longitude: matchingCoordinate?.longitude || artwork.longitude,
+            };
         });
+
+        return artworksWithCoordinates;
     }
+
+    async getCoordinates(museum: string) {
+        try {
+            const [result] = await this.geocoder.geocode(museum);
+            if (result) {
+                return {
+                    museum: museum,
+                    latitude: result.latitude,
+                    longitude: result.longitude,
+                };
+            }
+        } catch (error) {
+            console.error(`Error geocoding ${museum}: ${error}`);
+        }
+    }
+      
 
     //To use in CREATE
     async addArtworkToList(id: number, artworkId: number): Promise<void> {
