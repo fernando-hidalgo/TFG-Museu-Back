@@ -14,7 +14,7 @@ export class ScrappingService {
         private ArtworkRepository: ArtworkRepository
     ) {}
 
-    //Método A: Scrapping Web
+    //Método A: Scrapping HTML
     async getThyssenMuseum() {
         //Primera Parte: Obtener las URLs de Detalles de cada obra
         const browser = await puppeteer.launch({ headless: true });

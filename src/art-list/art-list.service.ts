@@ -55,7 +55,6 @@ export class ArtListService {
         let artworks = list.artworks
         artworks = await this.seen(currentUserId, artworks)
         artworks = await this.addGeo(artworks)
-        //TODO: Debe tambien devolver el nombre y descripcción de la lista
         return { artworks, ...this.artworkFilters(list.artworks), listName, listDescription } ;
     }
 

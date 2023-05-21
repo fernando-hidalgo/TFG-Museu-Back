@@ -20,7 +20,6 @@ export class ArtworkService {
         return { artworks, ...this.artworkFilters(artworks) } as ArtAndFilters;
     }
 
-    //TODO: Eliminar si no se usa aqui, estará en Scrapping Service
     async findById(id: number): Promise<ArtworkEntity> {
         const res = await this.ArtworkRepository.findOne({ where: { id } });
         //if (!res) throw new NotFoundException({ message: 'No artwork found' });

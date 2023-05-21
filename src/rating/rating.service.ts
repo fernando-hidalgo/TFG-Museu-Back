@@ -34,7 +34,7 @@ export class RatingService {
         const res = await this.RatingRepository
             .createQueryBuilder('ratings')
             .innerJoin('ratings.user', 'user')
-            .addSelect('user.id').addSelect('user.nickname') //TODO: .addSelect('user.profilePic')
+            .addSelect('user.id').addSelect('user.nickname')
             .where("ratings.id = :id", { id })
             .getOne();
         if(!res) throw new NotFoundException({message: 'No rating found'});
@@ -45,7 +45,7 @@ export class RatingService {
         const res = await this.RatingRepository
             .createQueryBuilder('ratings')
             .innerJoin('ratings.user', 'user')
-            .addSelect('user.id').addSelect('user.nickname') //TODO: .addSelect('user.profilePic')
+            .addSelect('user.id').addSelect('user.nickname')
             .where("artwork_id = :artworkId", { artworkId })
             .getMany();
         if(!res) throw new NotFoundException({message: 'No rating found'});
