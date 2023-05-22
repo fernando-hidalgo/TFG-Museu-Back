@@ -18,6 +18,7 @@ export class ArtListService {
     NodeGeocoder = require('node-geocoder');
     options = {provider: 'openstreetmap'};
     geocoder = this.NodeGeocoder(this.options);
+    private s3: S3;
 
     constructor(
         @InjectRepository(ArtListEntity)
@@ -28,7 +29,9 @@ export class ArtListService {
 
         @InjectRepository(UserEntity)
         private UserRepository: UserRepository,
-    ) {}
+    ) {
+        this.s3 = new S3();
+    }
 
     async getAll(): Promise<ArtListEntity[]> {
         const res = await this.ArtListRepository.find();
@@ -178,7 +181,7 @@ export class ArtListService {
                 Key: `cover-${artlistId}.jpg`
             }
 
-            const s3 = new S3();
+            const uploadResult = await this.s3.upload(AWSParams).promise();
             const uploadResult = await s3.upload(AWSParams).promise();
             return { key: uploadResult.Key };
         } catch (err) {
@@ -187,21 +190,29 @@ export class ArtListService {
         }
     }
 
-    async getCover(artlistId: number) {
+    async getCover(artlistId: number): Promise<string> {
         try {
-            const AWSParams = {
-                Bucket: 'museu-tfg',
-                Key: `cover-${artlistId}.jpg`,
-                Expires: 60 * 60 // Tiempo de expiración en segundos (1 hora en este ejemplo)
-            }
-
-            const s3 = new S3();
-            return { url: s3.getSignedUrl('getObject', AWSParams)};
+          const bucketName = 'museu-tfg';
+          const key = `cover-${artlistId}.jpg`;
+    
+          const params: S3.GetObjectRequest = {
+            Bucket: bucketName,
+            Key: key,
+          };
+    
+          const data = await this.s3.getObject(params).promise();
+          if (data && data.Body) {
+            // El objeto se ha encontrado en el bucket
+            const url = `https://${bucketName}.s3.eu-north-1.amazonaws.com/${key}`;
+            return url;
+          } else {
+            // El objeto no se encontró en el bucket
+            throw new Error('Objeto no encontrado en el bucket');
+          }
         } catch (err) {
-            console.log(err);
-            return { key: 'error', message: err.message };
+          console.log(err);
+          throw new Error('Error al obtener la URL del objeto');
         }
-
     }
 
     /*HELPERS*/
