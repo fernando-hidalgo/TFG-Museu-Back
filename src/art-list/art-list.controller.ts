@@ -9,22 +9,30 @@ import { RoleType } from 'src/role/role.enum';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { RolesGuard } from 'src/guards/role.guard';
 import { ArtlistGuard } from 'src/guards/artlist.guard';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 
 @Controller('art-list')
 export class ArtListController {
     constructor(private readonly ArtListService: ArtListService) {}
 
     @Get()
+    @ApiTags('Artlist')
+    @ApiOperation({ summary: 'Obtener todas las listas'})
     async getAll(){
         return this.ArtListService.getAll();
     }
 
     @Get(':artlistId')
+    @ApiTags('Artlist')
+    @ApiOperation({ summary: 'Obtener una lista dado un ID'})
     async getOne(@Param('artlistId', ParseIntPipe) artlistId: number) {
         return await this.ArtListService.findById(artlistId);
     }
 
     @Get('details/:artlistId')
+    @ApiParam({ name: 'currentUserId', required: false })
+    @ApiTags('Artlist')
+    @ApiOperation({ summary: 'Obtener las obras contenidas en una lista dado un ID'})
     async getOneDetailed(
         @Param('artlistId', ParseIntPipe) artlistId: number,
         @Query('currentUserId') currentUserId: number) {
@@ -32,6 +40,13 @@ export class ArtListController {
     }
 
     @Get('filtered/:artlistId')
+    @ApiTags('Artlist')
+    @ApiOperation({ summary: 'Filtrar las obras contenidas en una lista dado un ID'})
+    @ApiParam({ name: 'nameFilter', required: false })
+    @ApiParam({ name: 'artistFilter', required: false })
+    @ApiParam({ name: 'styleFilter', required: false })
+    @ApiParam({ name: 'museumFilter', required: false })
+    @ApiParam({ name: 'currentUserId', required: false })
     async getFiltered(
         @Param('artlistId', ParseIntPipe) artlistId: number,
         @Query('nameFilter') nameFilter: string,
@@ -43,6 +58,8 @@ export class ArtListController {
     }
 
     @Get('/user/:id')
+    @ApiTags('Artlist')
+    @ApiOperation({ summary: 'Obtener todas las listas de un usuario dado un ID'})
     async findByUserId(@Param('id', ParseIntPipe) userId: number) {
         return await this.ArtListService.findByUserId(userId);
     }
@@ -50,6 +67,9 @@ export class ArtListController {
     @RoleDecorator(RoleType.USER)
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Put('/edit/:id')
+    @ApiTags('Artlist')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Obtener lista para ser editada dado un ID'})
     async findListToEdit(
         @Param('id', ParseIntPipe) artlistId: number,
         @Body() body: any) {
@@ -60,6 +80,9 @@ export class ArtListController {
     @UseGuards(JwtAuthGuard, RolesGuard, ArtlistGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Put('add-list-modal/:id')
+    @ApiTags('Artlist')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Añadir obras a una lista a través del modal, dado artworkId y arlistsIds'})
     async addToListModal(@Param('id', ParseIntPipe) artworkId: number, @Body() arlistsIds: any) {
         return await this.ArtListService.addToListModal(artworkId, arlistsIds);
     }
@@ -68,6 +91,9 @@ export class ArtListController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
+    @ApiTags('Artlist')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Crear una lista'})
     async create(@Body() dto: CreateArtListDTO) {
         return await this.ArtListService.create(dto);
     }
@@ -75,6 +101,9 @@ export class ArtListController {
     @RoleDecorator(RoleType.USER)
     @UseGuards(JwtAuthGuard, RolesGuard, ArtlistGuard)
     @Delete(':id')
+    @ApiTags('Artlist')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Eliminar una lista'})
     async delete(@Param('id', ParseIntPipe) id: number){
         return await this.ArtListService.delete(id)
     }
@@ -83,6 +112,9 @@ export class ArtListController {
     @UseGuards(JwtAuthGuard, RolesGuard, ArtlistGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Put(':id')
+    @ApiTags('Artlist')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Modificar una lista'})
     async update(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
         return await this.ArtListService.update(id, dto);
     }
@@ -90,6 +122,9 @@ export class ArtListController {
     //S3 Arlist Images
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post('cover/:id')
+    @ApiTags('Artlist')
+    @ApiOperation({ summary: 'Añadir una portada a una lista'})
+    @ApiBearerAuth()
     @UseInterceptors(FileInterceptor('file'))
     async saveCover(
         @Param('id', ParseIntPipe) artlistId: number,
@@ -98,6 +133,8 @@ export class ArtListController {
     }
 
     @Get('cover/:id')
+    @ApiTags('Artlist')
+    @ApiOperation({ summary: 'Obtener la portada de una lista'})
     async getCover(
         @Param('id', ParseIntPipe) artlistId: number) {
         return await this.ArtListService.getCover(artlistId);

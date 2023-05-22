@@ -18,18 +18,12 @@ export class UserService {
         private readonly UserRepository: UserRepository
     ) {}
 
-    async getAll(): Promise<UserEntity[]> {
-        const users = await this.UserRepository.find();
-        if(!users.length) throw new NotFoundException({message: 'No users found'});
-        return users;
-    }
-
     async findNicknameById(id: number): Promise<any> {
         let user = await this.UserRepository.findOne({where: [{id}]})
         return {nickname: user.nickname}
     }
 
-    async findById(id: number): Promise<Boolean> {
+    async findUserExistsById(id: number): Promise<Boolean> {
         return !!(
             await this.UserRepository.findOne({
                 where: [{id}]

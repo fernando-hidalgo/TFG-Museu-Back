@@ -1,16 +1,17 @@
-import { IsString, ArrayNotEmpty } from "class-validator";
-import { IsNumber } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsString } from "class-validator";
 import { IsNotBlank } from "src/custom-decorators";
 
 export class UpdateArtListDTO{
     @IsString()
     @IsNotBlank({message: "name should not be empty"})
+    @ApiProperty()
     name?: string;
 
     @IsString()
+    @ApiProperty()
     text?: string;
 
-    //@IsNumber({},{each: true})
-    //@ArrayNotEmpty()
+    @ApiProperty()
     artworksIds?: number[];
 }

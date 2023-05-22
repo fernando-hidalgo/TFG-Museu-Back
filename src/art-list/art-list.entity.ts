@@ -8,7 +8,7 @@ export class ArtListEntity {
     id: number;
 
     @Column({type: 'varchar', nullable: false})
-    name: number;
+    name: string;
 
     @Column({type: 'varchar'})
     text: string;
