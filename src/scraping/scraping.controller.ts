@@ -1,25 +1,25 @@
 import { Controller, Get } from '@nestjs/common';
-import { ScrappingService } from './scrapping.service';
+import { ScrapingService } from './scraping.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@Controller('scrapping')
-export class ScrappingController {
-    constructor(private readonly ScrappingService: ScrappingService) {}
+@Controller('scraping')
+export class ScrapingController {
+    constructor(private readonly ScrapingService: ScrapingService) {}
 
     //TODO: Proteger para solo ADMIN
     @Get('/thyssen')
-    @ApiTags('Scrapping')
+    @ApiTags('Scraping')
     @ApiOperation({ summary: 'Obtener datos del Museo Thyssen'})
     @ApiBearerAuth()
     async scrapThyssenMuseum(){
-        return this.ScrappingService.getThyssenMuseum();
+        return this.ScrapingService.getThyssenMuseum();
     }
 
     @Get('/picasso')
-    @ApiTags('Scrapping')
+    @ApiTags('Scraping')
     @ApiOperation({ summary: 'Obtener datos del Museo Picasso'})
     @ApiBearerAuth()
     async scrapPicassoMuseum(){
-        return this.ScrappingService.getPicassoMuseum();
+        return this.ScrapingService.getPicassoMuseum();
     }
 }

@@ -41,7 +41,7 @@ export class ArtworkController {
     }
 
     
-    //TODO: Proteger despues de implementar Scrapping
+    //TODO: Proteger despues de implementar Scraping
     @Post()
     @ApiTags('Artworks')
     @ApiOperation({ summary: 'Crear obra de arte'})

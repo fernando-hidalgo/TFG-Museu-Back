@@ -8,13 +8,13 @@ import { Cluster } from 'puppeteer-cluster';
 var objectHash = require('object-hash');
 
 @Injectable()
-export class ScrappingService {
+export class ScrapingService {
     constructor(
         @InjectRepository(ArtworkEntity)
         private ArtworkRepository: ArtworkRepository
     ) {}
 
-    //Método A: Scrapping HTML
+    //Método A: Scraping HTML
     async getThyssenMuseum() {
         //Primera Parte: Obtener las URLs de Detalles de cada obra
         const browser = await puppeteer.launch({ headless: true });
@@ -113,7 +113,7 @@ export class ScrappingService {
         //Tercera Parte: Se guardan las obras
         await Promise.all(ArtworksToSave.map(art => this.saveScrap(art)));
 
-        return "Museo Tyssen guardado";
+        return JSON.stringify("Museo Tyssen guardado");
     }
 
 
@@ -158,7 +158,7 @@ export class ScrappingService {
 
         await Promise.all(ArtworksToSave.map(art => this.saveScrap(art)));
 
-        return "Museo Picasso guardado"
+        return JSON.stringify("Museo Picasso guardado")
     }
 
     /*HELPERS*/

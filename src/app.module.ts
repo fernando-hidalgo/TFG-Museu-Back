@@ -9,9 +9,8 @@ import { RatingModule } from './rating/rating.module';
 import { ArtListModule } from './art-list/art-list.module';
 import { UserModule } from './user/user.module';
 import { RoleModule } from './role/role.module';
-import { AuthService } from './auth/auth.service';
 import { AuthModule } from './auth/auth.module';
-import { ScrappingModule } from './scrapping/scrapping.module';
+import { ScrapingModule } from './scraping/scraping.module';
 
 @Module({
   imports: [
@@ -39,7 +38,7 @@ import { ScrappingModule } from './scrapping/scrapping.module';
     UserModule,
     RoleModule,
     AuthModule,
-    ScrappingModule
+    ScrapingModule
   ],
   controllers: [AppController],
   providers: [AppService],
