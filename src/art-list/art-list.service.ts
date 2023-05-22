@@ -182,7 +182,6 @@ export class ArtListService {
             }
 
             const uploadResult = await this.s3.upload(AWSParams).promise();
-            const uploadResult = await s3.upload(AWSParams).promise();
             return { key: uploadResult.Key };
         } catch (err) {
             console.log(err);
