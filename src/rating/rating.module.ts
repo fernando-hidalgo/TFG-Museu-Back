@@ -6,7 +6,6 @@ import { RatingEntity } from './rating.entity';
 import { ArtworkService } from 'src/artwork/artwork.service';
 import { ArtworkEntity } from 'src/artwork/artwork.entity';
 import { UserEntity } from 'src/user/user.entity';
-import { UserService } from 'src/user/user.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([RatingEntity, ArtworkEntity, UserEntity])],

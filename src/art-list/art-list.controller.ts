@@ -10,6 +10,7 @@ import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { RolesGuard } from 'src/guards/role.guard';
 import { ArtlistGuard } from 'src/guards/artlist.guard';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { CreateArtlistGuard } from 'src/guards/create-artlist.guard';
 
 @Controller('art-list')
 export class ArtListController {
@@ -88,7 +89,7 @@ export class ArtListController {
     }
 
     @RoleDecorator(RoleType.USER)
-    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard, CreateArtlistGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     @ApiTags('Artlist')

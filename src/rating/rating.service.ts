@@ -76,14 +76,6 @@ export class RatingService {
     }
 
     async create(dto: CreateRatingDTO): Promise<RatingEntity> {
-        const [user, artwork] = await Promise.all([
-            this.UserRepository.findOne({ select: ['id', 'nickname'], where: { id: dto.user_id } }),
-            this.ArtworkRepository.findOne({ select: ['id'], where: { id: dto.artwork_id } })
-        ]);
-
-        if (!user) throw new NotFoundException({ message: 'User not found' });
-        if (!artwork) throw new NotFoundException({ message: 'Artwork not found' });
-
         const alreadyRated = await this.RatingRepository
             .createQueryBuilder('ratings')
             .where("artwork_id = :artworkId", { artworkId: dto.artwork_id })
@@ -91,11 +83,13 @@ export class RatingService {
             .getOne();
         if (alreadyRated) throw new NotFoundException({ message: 'Current user already rated this artwork' });
 
-        const rating = this.RatingRepository.create(dto);
-        rating.user = user;
-        rating.artwork = artwork;
-
-        await this.RatingRepository.save(rating);
+        const rating = await this.RatingRepository.save(
+            this.RatingRepository.create({ 
+                ...dto,
+                user: { id: dto.user_id },
+                artwork: {id: dto.artwork_id}
+            })
+        );
         return rating;
     }
 

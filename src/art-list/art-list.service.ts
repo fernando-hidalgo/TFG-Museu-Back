@@ -10,7 +10,8 @@ import { CreateArtListDTO } from './dto/create-art-list.dto';
 import { UpdateArtListDTO } from './dto/update-art-list.dto';
 import { In, Not } from 'typeorm';
 import { S3 } from 'aws-sdk';
-import { v4 as uuid } from 'uuid';
+import { UserEntity } from 'src/user/user.entity';
+import { UserRepository } from 'src/user/user.repository';
 
 @Injectable()
 export class ArtListService {
@@ -23,7 +24,10 @@ export class ArtListService {
         private ArtListRepository: ArtListRepository,
 
         @InjectRepository(ArtworkEntity)
-        private ArtworkRepository: ArtworkRepository
+        private ArtworkRepository: ArtworkRepository,
+
+        @InjectRepository(UserEntity)
+        private UserRepository: UserRepository,
     ) {}
 
     async getAll(): Promise<ArtListEntity[]> {
@@ -120,13 +124,14 @@ export class ArtListService {
         return res;
     }
 
-    async create(dto: CreateArtListDTO): Promise<void> {
-        //Get list data from body object
-        let l = Object.assign(new ArtListEntity(), {name: dto.name, text: dto.text})
-        const list = this.ArtListRepository.create(l);
-        await this.ArtListRepository.save(list);
-        //ArtLists can never be empty, a first artwork to store must be provided
-        this.addArtworkToList(list.id, dto.artworkId);
+    async create(dto: CreateArtListDTO): Promise<ArtListEntity> {
+        const list = await this.ArtListRepository.save(
+            this.ArtListRepository.create({
+                ...dto,
+                user: { id: dto.userId }
+            })
+        );
+        return list;
     }
 
     async delete(id: number): Promise<void> {

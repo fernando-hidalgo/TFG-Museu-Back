@@ -15,10 +15,5 @@ export class CreateArtListDTO{
     @IsNumber()
     @IsNotEmpty()
     @ApiProperty()
-    artworkId?: number;
-
-    @IsNumber()
-    @IsNotEmpty()
-    @ApiProperty()
     userId?: number;
 }
