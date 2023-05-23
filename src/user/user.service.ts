@@ -31,7 +31,7 @@ export class UserService {
         );
     }
 
-    async getUserByFields(nickname: string, email: string): Promise<boolean> {
+    async userAvailable(nickname: string, email: string): Promise<boolean> {
         if (!nickname && !email) {
           return false;
         }

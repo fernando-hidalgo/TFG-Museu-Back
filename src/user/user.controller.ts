@@ -8,13 +8,13 @@ export class UserController {
 
     constructor(private readonly UserService: UserService) {}
 
-    @Get('/fields')
+    @Get('/available')
     @ApiTags('User')
     @ApiOperation({ summary: 'Comprobar si existe un usuario dado nickname y/o mail'})
-    async findByFields(
+    async userAvailable(
         @Query('nickname') nickname: string,
         @Query('email') email: string,) {
-        return await this.UserService.getUserByFields(nickname, email);
+        return await this.UserService.userAvailable(nickname, email);
     }
 
     @Get('/acount-exists')
