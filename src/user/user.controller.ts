@@ -11,7 +11,7 @@ export class UserController {
     @Get('/available')
     @ApiTags('User')
     @ApiOperation({ summary: 'Comprobar si existe un usuario dado nickname y/o mail'})
-    async userAvailable(
+    async checkUserAvailable(
         @Query('nickname') nickname: string,
         @Query('email') email: string,) {
         return await this.UserService.userAvailable(nickname, email);
@@ -20,10 +20,10 @@ export class UserController {
     @Get('/acount-exists')
     @ApiTags('User')
     @ApiOperation({ summary: 'Comprobar si existe un usuario dados unos credenciales'})
-    async findAccountExists(
+    async checkAccountExists(
         @Query('nick_or_mail') nick_or_mail: string,
         @Query('password') password: string,) {
-        return await this.UserService.getAccountExists(nick_or_mail, password);
+        return await this.UserService.accountExists(nick_or_mail, password);
     }
 
     @Get('nickname/:id')

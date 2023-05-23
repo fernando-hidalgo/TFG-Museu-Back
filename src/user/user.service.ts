@@ -32,9 +32,7 @@ export class UserService {
     }
 
     async userAvailable(nickname: string, email: string): Promise<boolean> {
-        if (!nickname && !email) {
-          return false;
-        }
+        if (!nickname && !email) return false;
       
         const user = await this.UserRepository.findOne({
           where: {
@@ -47,11 +45,17 @@ export class UserService {
     }
           
 
-    async getAccountExists(nick_or_mail: string, password: string): Promise<Boolean>{
+    async accountExists(nickOrMail: string, password: string): Promise<boolean> {
+        if (!nickOrMail || !password) return false;
+    
         const user = await this.UserRepository.findOne({
-            where: [{nickname: nick_or_mail}, {email: nick_or_mail}]
+            where: [
+                { nickname: nickOrMail },
+                { email: nickOrMail }
+            ],
         });
-        return user && await compare(password, user.password)
+    
+        return !!user && (await compare(password, user.password));
     }
 
     async createAdminUser(dto: CreateUserDTO): Promise<any> {
