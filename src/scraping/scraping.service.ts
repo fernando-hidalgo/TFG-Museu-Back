@@ -17,7 +17,10 @@ export class ScrapingService {
     //Método A: Scraping HTML
     async getThyssenMuseum() {
         //Primera Parte: Obtener las URLs de Detalles de cada obra
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox'],
+        });
         const page = await browser.newPage();
 
         //La estructura de la URL espera el número de página
