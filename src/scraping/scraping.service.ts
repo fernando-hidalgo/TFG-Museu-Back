@@ -50,6 +50,10 @@ export class ScrapingService {
         const cluster = await Cluster.launch({
             concurrency: Cluster.CONCURRENCY_PAGE,
             maxConcurrency: detailsURLs?.length / 2, //La mitad del total de obras
+            puppeteerOptions: {
+                headless: true,
+                args: ['--no-sandbox', '--disable-setuid-sandbox'],
+            }
         });
 
         cluster.on("taskerror", (err, data) => {
