@@ -5,6 +5,7 @@ import { ArtworkRepository } from '../artwork/artwork.repository';
 import { ArtworkDTO } from 'src/artwork/dto/artwork.dto';
 import puppeteer from 'puppeteer';
 import { Cluster } from 'puppeteer-cluster';
+import fetch from 'cross-fetch';
 var objectHash = require('object-hash');
 
 @Injectable()
