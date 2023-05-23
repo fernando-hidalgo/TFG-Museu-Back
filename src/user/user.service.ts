@@ -32,8 +32,20 @@ export class UserService {
     }
 
     async getUserByFields(nickname: string, email: string): Promise<boolean> {
-        return !!await this.UserRepository.findOne({ where: { nickname, email } });
-    }   
+        if (!nickname && !email) {
+          return false;
+        }
+      
+        const user = await this.UserRepository.findOne({
+          where: {
+            ...(nickname && { nickname }),
+            ...(email && { email }),
+          },
+        });
+      
+        return !user;
+    }
+          
 
     async getAccountExists(nick_or_mail: string, password: string): Promise<Boolean>{
         const user = await this.UserRepository.findOne({
