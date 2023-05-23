@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ArtAndFilters } from 'src/app.interfaces';
 import { ArtworkEntity } from 'src/artwork/artwork.entity';
@@ -17,6 +17,7 @@ export class ArtListService {
     options = {provider: 'openstreetmap'};
     geocoder = this.NodeGeocoder(this.options);
     private s3: S3;
+    private logger = new Logger('ArtList');
 
     constructor(
         @InjectRepository(ArtListEntity)
@@ -163,7 +164,15 @@ export class ArtListService {
     }
 
     async addToListModal(artworkId: number, arlistsIds): Promise<void> {
-        await Promise.all(arlistsIds.arlistsIds.map((e: number) => this.addArtworkToList(e, artworkId)));
+        const promises = arlistsIds.arlistsIds.map((e: number) => this.addArtworkToList(e, artworkId));
+
+        await Promise.all(promises.map(async (promise) => {
+          try {
+            await promise;
+          } catch (error) {
+            this.logger.error('Error al usar al añadir la obra a la lista');
+          }
+        }));
     }
 
     async uploadCover(artlistId: number, dataBuffer: Buffer) {
