@@ -10,7 +10,7 @@ async function bootstrap() {
   app.enableCors()
 
   const configService = app.get(ConfigService);
-  const port = +configService.get<number>(SERVER_PORT) || 3000;
+  //const port = +configService.get<number>(SERVER_PORT) || 3000;
 
   config.update({
     accessKeyId: '',
@@ -27,6 +27,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(port);
+  await app.listen(process.env.PORT);
 }
 bootstrap();
