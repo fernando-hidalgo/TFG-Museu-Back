@@ -10,7 +10,7 @@ async function bootstrap() {
   app.enableCors()
 
   const configService = app.get(ConfigService);
-  const port = +configService.get<number>(SERVER_PORT)// || 3000;
+  const port = +configService.get<number>(SERVER_PORT) || 3000;
 
   config.update({
     accessKeyId: '',
