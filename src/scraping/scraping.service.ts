@@ -19,7 +19,7 @@ export class ScrapingService {
         //Primera Parte: Obtener las URLs de Detalles de cada obra
         const browser = await puppeteer.launch({
             headless: true,
-            args: ['--no-sandbox'],
+            args: ['--no-sandbox', '--disable-setuid-sandbox'],
         });
         const page = await browser.newPage();
 
