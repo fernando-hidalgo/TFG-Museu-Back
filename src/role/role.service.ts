@@ -23,5 +23,6 @@ export class RoleService {
         const exists = await this.roleRepository.findOne({where: {type: dto.type as RoleType}});
         if(exists) throw new BadRequestException({message: "Role already exists"});
         await this.roleRepository.save(dto as RoleEntity);
+        return `Role ${dto.type} creado`
     }
 }

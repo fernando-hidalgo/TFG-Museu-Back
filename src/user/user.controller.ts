@@ -41,7 +41,7 @@ export class UserController {
     }
 
     @UsePipes(new ValidationPipe({whitelist: true}))
-    @Post('/ccreate-admin-user')
+    @Post('/create-admin-user')
     @ApiTags('User')
     @ApiOperation({ summary: 'Crear usuario administrador'})
     @ApiBearerAuth()

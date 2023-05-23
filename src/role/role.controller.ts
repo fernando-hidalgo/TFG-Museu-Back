@@ -19,7 +19,6 @@ export class RoleController {
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     @ApiTags('Role')
-    @ApiBearerAuth()
     @ApiOperation({ summary: 'Crear nuevo rol'})
     create(@Body() dto: CreateRoleDTO) {
         return this.roleService.create(dto);

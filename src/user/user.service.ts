@@ -31,13 +31,9 @@ export class UserService {
         );
     }
 
-    async getUserByFields(nickname: string, email: string): Promise<Boolean> {
-        return !(
-            await this.UserRepository.findOne({
-                where: [{nickname}, {email}]
-            })
-        );
-    }
+    async getUserByFields(nickname: string, email: string): Promise<boolean> {
+        return !!await this.UserRepository.findOne({ where: { nickname, email } });
+    }   
 
     async getAccountExists(nick_or_mail: string, password: string): Promise<Boolean>{
         const user = await this.UserRepository.findOne({
@@ -58,6 +54,7 @@ export class UserService {
         const admin = this.UserRepository.create(dto);
         admin.roles = [rolAdmin, rolUser];
         await this.UserRepository.save(admin);
+        return "Usuario admin creado con éxito"
     }
 
     async createRegularUser(dto: CreateUserDTO): Promise<any> {
@@ -71,5 +68,6 @@ export class UserService {
         const regular = this.UserRepository.create(dto);
         regular.roles = [rolUser];
         await this.UserRepository.save(regular);
+        return "Usuario regular creado con éxito"
     }
 }
