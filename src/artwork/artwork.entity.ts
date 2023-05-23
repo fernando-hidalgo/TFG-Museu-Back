@@ -6,14 +6,23 @@ export class ArtworkEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column({type: 'varchar'})
+    picLink: string;
+
     @Column({type: 'varchar', nullable: false})
     name: string;
 
     @Column({type: 'varchar'})
-    date: string;
+    artist: string;
 
     @Column({type: 'varchar'})
-    artist: string;
+    style: string;
+
+    @Column({type: 'varchar'})
+    date: string;
+
+    @Column({type: 'longtext'})
+    description: string;
 
     @Column({type: 'varchar', nullable: false})
     museum: string;
@@ -21,8 +30,8 @@ export class ArtworkEntity {
     @Column({type: 'varchar'})
     colection: string;
 
-    @Column({type: 'varchar'})
-    display: string;
+    @Column({ type: 'boolean' })
+    display: boolean;
 
     @Column({type: 'varchar'})
     room: string;
@@ -32,4 +41,10 @@ export class ArtworkEntity {
 
     @OneToMany(type => RatingEntity, rating => rating.artwork)
     ratings: RatingEntity[];
+
+    //No deben ser columnas en BD
+    seen: boolean;
+    userRating: number;
+    latitude: number;
+    longitude: number;
 }
