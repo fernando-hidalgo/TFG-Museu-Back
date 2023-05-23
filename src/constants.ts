@@ -11,10 +11,6 @@ export const DB_PASSWORD = 'DB_PASSWORD'
 // AUTH
 export const JWT_SECRET='JWT_SECRET'
 
-// OTHERS
-export const ArtworkFields = ['name', 'artist', 'style', 'museum']
-
-
 /*To .env depending on environment*/
 //LOCAL ENV
 

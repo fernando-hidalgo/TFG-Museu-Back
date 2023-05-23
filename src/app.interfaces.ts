@@ -7,3 +7,5 @@ export interface ArtAndFilters {
     styleFilter: string[],
     museumFilter: string[]
 }
+
+export const ArtworkFields = ['name', 'artist', 'style', 'museum']

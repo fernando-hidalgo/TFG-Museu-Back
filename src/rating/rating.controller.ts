@@ -8,17 +8,11 @@ import { UpdateRatingDTO } from './dto/update-rating.dto';
 import { RatingService } from './rating.service';
 import { RatingGuard } from 'src/guards/rating.guard';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ResourceOwnerGuard } from 'src/guards/resource-owner.guard';
 
 @Controller('rating')
 export class RatingController {
     constructor(private readonly RatingService: RatingService) {}
-
-    @Get()
-    @ApiTags('Rating')
-    @ApiOperation({ summary: 'Obtener todas las valoraciones'})
-    async getAll(){
-        return this.RatingService.getAll();
-    }
 
     @Get('/:id')
     @ApiTags('Rating')
@@ -62,7 +56,7 @@ export class RatingController {
     }
 
     @RoleDecorator(RoleType.USER)
-    @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard, ResourceOwnerGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     @ApiTags('Rating')

@@ -2,14 +2,12 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ArtAndFilters } from 'src/app.interfaces';
 import { ArtworkEntity } from 'src/artwork/artwork.entity';
-import { ArtworkFields } from 'src/constants';
+import { ArtworkFields } from 'src/app.interfaces';
 import { CreateRatingDTO } from './dto/create-rating.dto';
 import { UpdateRatingDTO } from './dto/update-rating.dto';
 import { RatingEntity } from './rating.entity';
 import { RatingRepository } from './rating.repository';
 import { ArtworkRepository } from '../artwork/artwork.repository';
-import { UserEntity } from 'src/user/user.entity';
-import { UserRepository } from 'src/user/user.repository';
 
 @Injectable()
 export class RatingService {
@@ -19,16 +17,7 @@ export class RatingService {
 
         @InjectRepository(ArtworkEntity)
         private ArtworkRepository: ArtworkRepository,
-
-        @InjectRepository(UserEntity)
-        private UserRepository: UserRepository,
     ) {}
-
-    async getAll(): Promise<RatingEntity[]> {
-        const res = await this.RatingRepository.find();
-        if(!res.length) throw new NotFoundException({message: 'No artworks found'});
-        return res;
-    }
 
     async findById(id: number): Promise<RatingEntity> {
         const res = await this.RatingRepository

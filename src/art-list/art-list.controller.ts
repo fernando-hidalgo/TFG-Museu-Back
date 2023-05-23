@@ -10,18 +10,12 @@ import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { RolesGuard } from 'src/guards/role.guard';
 import { ArtlistGuard } from 'src/guards/artlist.guard';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { CreateArtlistGuard } from 'src/guards/create-artlist.guard';
+import { ResourceOwnerGuard } from 'src/guards/resource-owner.guard';
+import { UpdateArtListDTO } from './dto/update-art-list.dto';
 
 @Controller('art-list')
 export class ArtListController {
     constructor(private readonly ArtListService: ArtListService) {}
-
-    @Get()
-    @ApiTags('Artlist')
-    @ApiOperation({ summary: 'Obtener todas las listas'})
-    async getAll(){
-        return this.ArtListService.getAll();
-    }
 
     @Get(':artlistId')
     @ApiTags('Artlist')
@@ -80,7 +74,7 @@ export class ArtListController {
     @RoleDecorator(RoleType.USER)
     @UseGuards(JwtAuthGuard, RolesGuard, ArtlistGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
-    @Put('add-list-modal/:id')
+    @Put('modal/:id')
     @ApiTags('Artlist')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Añadir obras a una lista a través del modal, dado artworkId y arlistsIds'})
@@ -89,7 +83,7 @@ export class ArtListController {
     }
 
     @RoleDecorator(RoleType.USER)
-    @UseGuards(JwtAuthGuard, RolesGuard, CreateArtlistGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard, ResourceOwnerGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     @ApiTags('Artlist')
@@ -116,7 +110,7 @@ export class ArtListController {
     @ApiTags('Artlist')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Modificar una lista'})
-    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateArtListDTO) {
         return await this.ArtListService.update(id, dto);
     }
 

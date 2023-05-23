@@ -39,5 +39,31 @@ export class ArtworkController {
     async getOne(@Param('id', ParseIntPipe) id: number) {
         return await this.ArtworkService.findById(id);
     }
+        
+    //TODO: Proteger despues de implementar Scraping
+    @Post()
+    @ApiTags('Artworks')
+    @ApiOperation({ summary: 'Crear obra de arte'})
+    @ApiBearerAuth()
+    async create(@Body() dto: ArtworkDTO) {
+        return await this.ArtworkService.create(dto);
+    }
+
+    @UsePipes(new ValidationPipe({whitelist: true}))
+    @Put(':id')
+    @ApiTags('Artworks')
+    @ApiOperation({ summary: 'Actualizar obra de arte'})
+    @ApiBearerAuth()
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: ArtworkDTO) {
+        return await this.ArtworkService.update(id, dto);
+    }
+
+    @Delete(':id')
+    @ApiTags('Artworks')
+    @ApiOperation({ summary: 'Eliminar obra de arte'})
+    @ApiBearerAuth()
+    async delete(@Param('id', ParseIntPipe) id: number){
+        return await this.ArtworkService.delete(id)
+    }
     
 }

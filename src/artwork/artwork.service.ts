@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ArtAndFilters } from 'src/app.interfaces';
-import { ArtworkFields } from 'src/constants';
+import { ArtworkFields } from 'src/app.interfaces';
 import { ArtworkEntity } from './artwork.entity';
 import { ArtworkRepository } from './artwork.repository';
 import { ArtworkDTO } from './dto/artwork.dto';

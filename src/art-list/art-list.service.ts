@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ArtAndFilters } from 'src/app.interfaces';
 import { ArtworkEntity } from 'src/artwork/artwork.entity';
-import { ArtworkFields } from 'src/constants';
+import { ArtworkFields } from 'src/app.interfaces';
 import { ArtListEntity } from './art-list.entity';
 import { ArtListRepository } from './art-list.repository';
 import { ArtworkRepository } from '../artwork/artwork.repository';
@@ -10,8 +10,6 @@ import { CreateArtListDTO } from './dto/create-art-list.dto';
 import { UpdateArtListDTO } from './dto/update-art-list.dto';
 import { In, Not } from 'typeorm';
 import { S3 } from 'aws-sdk';
-import { UserEntity } from 'src/user/user.entity';
-import { UserRepository } from 'src/user/user.repository';
 
 @Injectable()
 export class ArtListService {
@@ -26,17 +24,8 @@ export class ArtListService {
 
         @InjectRepository(ArtworkEntity)
         private ArtworkRepository: ArtworkRepository,
-
-        @InjectRepository(UserEntity)
-        private UserRepository: UserRepository,
     ) {
         this.s3 = new S3();
-    }
-
-    async getAll(): Promise<ArtListEntity[]> {
-        const res = await this.ArtListRepository.find();
-        if(!res.length) throw new NotFoundException({message: 'No lists found'});
-        return res;
     }
 
     async findById(id: number): Promise<Boolean> {
@@ -137,15 +126,17 @@ export class ArtListService {
         return list;
     }
 
-    async delete(id: number): Promise<void> {
+    async delete(id: number): Promise<ArtListEntity> {
         const list = await this.ArtListRepository
             .createQueryBuilder('art_lists')
             .where("id = :id", { id: id })
             .getOne();
         await this.ArtListRepository.delete(list as any);
+
+        return list
     }
 
-    async update(artlistId: number, dto: UpdateArtListDTO): Promise<void> {
+    async update(artlistId: number, dto: UpdateArtListDTO): Promise<ArtListEntity> {
         const list = await this.ArtListRepository
             .createQueryBuilder('art_lists')
             .where("id = :id", { id: artlistId })
@@ -167,6 +158,8 @@ export class ArtListService {
         dto.artworksIds.forEach(e => 
             this.addArtworkToList(artlistId, e)
         );
+
+        return list;
     }
 
     async addToListModal(artworkId: number, arlistsIds): Promise<void> {
