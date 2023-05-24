@@ -110,11 +110,11 @@ export class ArtListController {
     @ApiTags('Artlist')
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Modificar una lista'})
-    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateArtListDTO) {
+    async update(@Param('id', ParseIntPipe) id: number, @Body() dto: any) {
         return await this.ArtListService.update(id, dto);
     }
 
-    //S3 Arlist Images
+    //Firebase Bucket
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post('cover/:id')
     @ApiTags('Artlist')

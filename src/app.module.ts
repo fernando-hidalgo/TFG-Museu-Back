@@ -3,7 +3,6 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER } from './constants';
 import { ArtworkModule } from './artwork/artwork.module';
 import { RatingModule } from './rating/rating.module';
 import { ArtListModule } from './art-list/art-list.module';
@@ -20,13 +19,13 @@ import { ScrapingModule } from './scraping/scraping.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: () => ({
         type: 'mysql',
-        host: configService.get<string>(DB_HOST),
-        port: +configService.get<number>(DB_PORT),
-        username: configService.get<string>(DB_USER),
-        password: configService.get<string>(DB_PASSWORD),
-        database: configService.get<string>(DB_NAME),
+        host: process.env.DB_HOST || "localhost",
+        port: +process.env.DB_PORT || 3306,
+        username: process.env.DB_USER ||"root",
+        password: process.env.DB_PASSWORD ||"museu",
+        database: process.env.DB_NAME ||"museu",
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: true,
       }),

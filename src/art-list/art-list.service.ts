@@ -9,14 +9,16 @@ import { ArtworkRepository } from '../artwork/artwork.repository';
 import { CreateArtListDTO } from './dto/create-art-list.dto';
 import { UpdateArtListDTO } from './dto/update-art-list.dto';
 import { In, Not } from 'typeorm';
-import { S3 } from 'aws-sdk';
+import { initializeApp } from 'firebase/app';
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { url } from 'inspector';
+import { firebaseConfig } from 'src/firebase.config';
 
 @Injectable()
 export class ArtListService {
     NodeGeocoder = require('node-geocoder');
     options = {provider: 'openstreetmap'};
     geocoder = this.NodeGeocoder(this.options);
-    private s3: S3;
     private logger = new Logger('ArtList');
 
     constructor(
@@ -25,9 +27,7 @@ export class ArtListService {
 
         @InjectRepository(ArtworkEntity)
         private ArtworkRepository: ArtworkRepository,
-    ) {
-        this.s3 = new S3();
-    }
+    ) { }
 
     async findById(id: number): Promise<Boolean> {
         return !!(
@@ -176,44 +176,22 @@ export class ArtListService {
     }
 
     async uploadCover(artlistId: number, dataBuffer: Buffer) {
-        try {
-            const AWSParams = {
-                Bucket: 'museu-tfg',
-                Body: dataBuffer || "",
-                Key: `cover-${artlistId}.jpg`
-            }
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app)
+        const storageRef = ref(storage, `cover-${artlistId}.jpg`)
 
-            const uploadResult = await this.s3.upload(AWSParams).promise();
-            return { key: uploadResult.Key };
-        } catch (err) {
-            console.log(err);
-            return { key: 'error', message: err.message };
-        }
+        uploadBytes(storageRef, dataBuffer).then(() => {
+            this.logger.log(`Subida al bucket la portada de la lista ID: ${artlistId}`)
+        });
     }
 
-    async getCover(artlistId: number): Promise<string> {
-        try {
-          const bucketName = 'museu-tfg';
-          const key = `cover-${artlistId}.jpg`;
-    
-          const params: S3.GetObjectRequest = {
-            Bucket: bucketName,
-            Key: key,
-          };
-    
-          const data = await this.s3.getObject(params).promise();
-          if (data && data.Body) {
-            // El objeto se ha encontrado en el bucket
-            const url = `https://${bucketName}.s3.eu-north-1.amazonaws.com/${key}`;
-            return url;
-          } else {
-            // El objeto no se encontró en el bucket
-            throw new Error('Objeto no encontrado en el bucket');
-          }
-        } catch (err) {
-          console.log(err);
-          throw new Error('Error al obtener la URL del objeto');
-        }
+    async getCover(artlistId: number) {
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app)
+        const gsReference = ref(storage, `cover-${artlistId}.jpg`)
+
+        const url = await getDownloadURL(gsReference)
+        return JSON.stringify(url)
     }
 
     /*HELPERS*/
