@@ -56,7 +56,7 @@ export class RatingController {
     }
 
     @RoleDecorator(RoleType.USER)
-    @UseGuards(JwtAuthGuard, RolesGuard, ResourceOwnerGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard)
     @UsePipes(new ValidationPipe({whitelist: true}))
     @Post()
     @ApiTags('Rating')

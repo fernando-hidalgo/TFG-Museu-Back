@@ -13,9 +13,6 @@ export class ArtListEntity {
     @Column({type: 'varchar'})
     text: string;
 
-    /*@Column({type: 'varchar'})    //TODO: Guardar portada de la lista en BD
-    cover: string;*/
-
     @ManyToOne(type => UserEntity, user => user.ratings, { onDelete:'CASCADE', nullable: false, eager: true}) 
     @JoinColumn({ name: 'user_id' })
     user: UserEntity;

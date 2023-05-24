@@ -180,9 +180,13 @@ export class ArtListService {
         const storage = getStorage(app)
         const storageRef = ref(storage, `cover-${artlistId}.jpg`)
 
-        uploadBytes(storageRef, dataBuffer).then(() => {
-            this.logger.log(`Subida al bucket la portada de la lista ID: ${artlistId}`)
-        });
+        try {
+            uploadBytes(storageRef, dataBuffer).then(() => {
+                this.logger.log(`Subida al bucket la portada de la lista ID: ${artlistId}`)
+            });
+        } catch (error) {
+            this.logger.warn('Error al subir el archivo')
+        }
     }
 
     async getCover(artlistId: number) {
@@ -190,8 +194,12 @@ export class ArtListService {
         const storage = getStorage(app)
         const gsReference = ref(storage, `cover-${artlistId}.jpg`)
 
-        const url = await getDownloadURL(gsReference)
-        return JSON.stringify(url)
+        try {
+            const url = await getDownloadURL(gsReference)
+            return JSON.stringify(url)
+        } catch (error) {
+            this.logger.warn('Archivo no encontrado')
+        }
     }
 
     /*HELPERS*/

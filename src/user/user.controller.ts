@@ -1,7 +1,8 @@
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserService } from './user.service';
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseInterceptors, UsePipes, ValidationPipe } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 export class UserController {
@@ -56,5 +57,26 @@ export class UserController {
     @ApiBearerAuth()
     createRegularUser(@Body() dto: CreateUserDTO) {
         return this.UserService.createRegularUser(dto);
+    }
+
+    //Firebase Bucket
+    @UsePipes(new ValidationPipe({whitelist: true}))
+    @Post('profile/:id')
+    @ApiTags('User')
+    @ApiOperation({ summary: 'Añadir una portada a una lista'})
+    @ApiBearerAuth()
+    @UseInterceptors(FileInterceptor('file'))
+    async saveProfilePic(
+        @Param('id', ParseIntPipe) userId: number,
+        @UploadedFile() file: Express.Multer.File) {
+        return await this.UserService.uploadProfilePic(userId, file?.buffer);
+    }
+
+    @Get('profile/:id')
+    @ApiTags('User')
+    @ApiOperation({ summary: 'Obtener la portada de una lista'})
+    async getProfilePic(
+        @Param('id', ParseIntPipe) userId: number) {
+        return await this.UserService.getProfilePic(userId);
     }
 }

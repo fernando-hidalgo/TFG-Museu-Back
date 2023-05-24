@@ -3,13 +3,17 @@ import { RoleRepository } from './../role/role.repository';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserRepository } from './user.repository';
 import { UserEntity } from './user.entity';
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RoleType } from 'src/role/role.enum';
 import { compare } from 'bcryptjs';
+import { initializeApp } from 'firebase/app';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import { firebaseConfig } from 'src/firebase.config';
 
 @Injectable()
 export class UserService {
+    private logger = new Logger('User');
 
     constructor(
         @InjectRepository(RoleEntity)
@@ -58,7 +62,34 @@ export class UserService {
         return !!user && (await compare(password, user.password));
     }
 
-    async createAdminUser(dto: CreateUserDTO): Promise<any> {
+    async uploadProfilePic(userId: number, dataBuffer: Buffer) {
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app)
+        const storageRef = ref(storage, `profile-${userId}.jpg`)
+
+        try {
+            uploadBytes(storageRef, dataBuffer).then(() => {
+                this.logger.log(`Subida al bucket la imagen de perfil del usuario ID: ${userId}`)
+            });
+        } catch (error) {
+            this.logger.warn('Error al subir el archivo')
+        }
+    }
+
+    async getProfilePic(userId: number) {
+        const app = initializeApp(firebaseConfig);
+        const storage = getStorage(app)
+        const gsReference = ref(storage, `profile-${userId}.jpg`)
+
+        try {
+            const url = await getDownloadURL(gsReference)
+            return JSON.stringify(url)
+        } catch (error) {
+            this.logger.warn('Archivo no encontrado')
+        }
+    }
+
+    async createAdminUser(dto: CreateUserDTO): Promise<number> {
         const {nickname, email} = dto;
         const exists = await this.UserRepository.findOne({where: [{nickname: nickname}, {email: email}]});
         if(exists) throw new BadRequestException({message: 'User already exits'});
@@ -70,10 +101,10 @@ export class UserService {
         const admin = this.UserRepository.create(dto);
         admin.roles = [rolAdmin, rolUser];
         await this.UserRepository.save(admin);
-        return "Usuario admin creado con éxito"
+        return admin.id
     }
 
-    async createRegularUser(dto: CreateUserDTO): Promise<any> {
+    async createRegularUser(dto: CreateUserDTO): Promise<number> {
         const {nickname, email} = dto;
         const exists = await this.UserRepository.findOne({where: [{nickname: nickname}, {email: email}]});
         if(exists) throw new BadRequestException({message: 'User already exits'});
@@ -84,6 +115,6 @@ export class UserService {
         const regular = this.UserRepository.create(dto);
         regular.roles = [rolUser];
         await this.UserRepository.save(regular);
-        return "Usuario regular creado con éxito"
+        return regular.id
     }
 }
