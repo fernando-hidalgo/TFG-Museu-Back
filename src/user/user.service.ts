@@ -68,8 +68,9 @@ export class UserService {
         const storageRef = ref(storage, `profile-${userId}.jpg`)
 
         try {
-            uploadBytes(storageRef, dataBuffer).then(() => {
+            return uploadBytes(storageRef, dataBuffer).then(async () => {
                 this.logger.log(`Subida al bucket la imagen de perfil del usuario ID: ${userId}`)
+                return await this.getProfilePic(userId)
             });
         } catch (error) {
             this.logger.warn('Error al subir el archivo')
