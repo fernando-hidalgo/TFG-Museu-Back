@@ -10,7 +10,7 @@ export class RatingEntity {
     @Column({type: 'float', nullable: false})
     value: number;
 
-    @Column({type: 'varchar'})
+    @Column({type: 'longtext'})
     text: string;
 
     @ManyToOne(type => ArtworkEntity, artwork => artwork.ratings, { onDelete:'CASCADE', nullable: false, eager: true}) 

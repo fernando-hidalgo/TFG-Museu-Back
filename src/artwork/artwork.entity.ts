@@ -6,10 +6,10 @@ export class ArtworkEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({type: 'varchar'})
+    @Column({type: 'longtext'})
     picLink: string;
 
-    @Column({type: 'varchar', nullable: false})
+    @Column({type: 'longtext', nullable: false})
     name: string;
 
     @Column({type: 'varchar'})

@@ -7,10 +7,10 @@ export class ArtListEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({type: 'varchar', nullable: false})
+    @Column({type: 'longtext', nullable: false})
     name: string;
 
-    @Column({type: 'varchar'})
+    @Column({type: 'longtext'})
     text: string;
 
     @ManyToOne(type => UserEntity, user => user.ratings, { onDelete:'CASCADE', nullable: false, eager: true}) 
