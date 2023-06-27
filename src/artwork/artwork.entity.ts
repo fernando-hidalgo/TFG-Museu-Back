@@ -12,28 +12,28 @@ export class ArtworkEntity {
     @Column({type: 'longtext', nullable: false})
     name: string;
 
-    @Column({type: 'varchar'})
+    @Column({type: 'longtext'})
     artist: string;
 
-    @Column({type: 'varchar'})
+    @Column({type: 'longtext'})
     style: string;
 
-    @Column({type: 'varchar'})
+    @Column({type: 'longtext'})
     date: string;
 
     @Column({type: 'longtext'})
     description: string;
 
-    @Column({type: 'varchar', nullable: false})
+    @Column({type: 'longtext', nullable: false})
     museum: string;
 
-    @Column({type: 'varchar'})
+    @Column({type: 'longtext'})
     colection: string;
 
     @Column({ type: 'boolean' })
     display: boolean;
 
-    @Column({type: 'varchar'})
+    @Column({type: 'longtext'})
     room: string;
 
     @Column({type: "float"})

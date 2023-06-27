@@ -10,13 +10,13 @@ export class UserEntity {
     @PrimaryGeneratedColumn('increment')
     id: number;
 
-    @Column({type: 'varchar', length: 10, nullable: false, unique: true})
+    @Column({type: 'longtext', length: 10, nullable: false, unique: true})
     nickname: string;
 
-    @Column({type: 'varchar', nullable: false, unique: true})
+    @Column({type: 'longtext', nullable: false, unique: true})
     email: string;
 
-    @Column({type: 'varchar', nullable: false})
+    @Column({type: 'longtext', nullable: false})
     password: string;
 
     @OneToMany(type => RatingEntity, rating => rating.user)
